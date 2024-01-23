@@ -44,12 +44,12 @@ class Parser:
         
     def parse(self) -> str:
         if self.id == 130313:
-            return f"Humedad: {round(self.data_int * 0.004), 2} %" 
+            return f"Humedad: {round(self.data_int * 0.004, 2)} %" 
         if self.id == 130306:
             speed: float = round( int.from_bytes(self.data[0:2], byteorder='little') * 0.01, 2)
-            dir: float = round(int.from_bytes(self.data[2:], byteorder='little') * 0.0001, 2)
+            dir: float = round((int.from_bytes(self.data[2:], byteorder='little') * 0.0001) * 180 / 3.14159 , 2)
             
-            return f"Velocidad: {speed}m/s\n>Direccion: {dir} rad"
+            return f"Velocidad: {speed}m/s\n> Direccion: {dir} rad"
         if self.id == 65269:
             temp: float = round(self.data_int * 0.01 - 273.15, 2)
             
@@ -110,8 +110,8 @@ async def main() -> None:
                 bus.send(msg)
                 
             await reader.get_message()
-            print("[end]")
-            notifier.stop()
+            #print("[end]")
+            #notifier.stop()
 
 
         #read_thread = Thread()
