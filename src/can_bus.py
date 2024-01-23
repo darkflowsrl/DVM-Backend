@@ -133,10 +133,11 @@ if __name__ == '__main__':
                 id: int = 64835
                 num_placa: int = int(input('PLACA No > '))
                 bytes_placa = num_placa.to_bytes(2, 'little')
-                rmp_1: int = int(input('RPM 1 > ')) // 40
-                rmp_2: int = int(input('RPM 2 > ')) // 40
-                rmp_3: int = int(input('RPM 3 > ')) // 40
-                rmp_4: int = int(input('RPM 4 > ')) // 40
+                rpm_coeficient: int = 50
+                rmp_1: int = int(input('RPM 1 > ')) // rpm_coeficient
+                rmp_2: int = int(input('RPM 2 > ')) // rpm_coeficient
+                rmp_3: int = int(input('RPM 3 > ')) // rpm_coeficient
+                rmp_4: int = int(input('RPM 4 > ')) // rpm_coeficient
                 msg = can.Message(arbitration_id=id,
                                   data=[bytes_placa[0], bytes_placa[1], rmp_1, rmp_2, rmp_3, rmp_4, 0, 0],
                                   is_extended_id=True)
