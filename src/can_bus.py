@@ -18,10 +18,10 @@ def load_message(msg: can.Message) -> None:
     if len(buffer) >= buffer_len:
         buffer.pop()
         buffer.append(msg)
-        print(f"{msg.arbitration_id}: {msg.data} : {msg.data.decode('utf-8')}")
+        print(f"{msg.arbitration_id}: {msg.data} : {msg}")
     else:
         buffer.append(msg)
-        print(f"{msg.arbitration_id}: {msg.data} :  {msg.data.decode('utf-8')}")
+        print(f"{msg.arbitration_id}: {msg.data} :  {msg}")
 
 async def main() -> None:
     if args.mode == "read":
