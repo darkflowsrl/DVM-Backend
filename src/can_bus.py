@@ -44,18 +44,18 @@ class Parser:
         
     def parse(self) -> str:
         if self.id == 130313:
-            return f"Humedad: {str(self.data_int * 0.004)} %" 
+            return f"Humedad: {round(str(self.data_int * 0.004), 2)} %" 
         if self.id == 130306:
-            speed: float = int.from_bytes(self.data[0:2], byteorder='little') * 0.01
-            dir: float = int.from_bytes(self.data[2:], byteorder='little') * 0.0001
+            speed: float = round( int.from_bytes(self.data[0:2], byteorder='little') * 0.01, 2)
+            dir: float = round(int.from_bytes(self.data[2:], byteorder='little') * 0.0001, 2)
             
-            return f"Velocidad: {speed}m/s\nDireccion: {dir} rad"
+            return f"Velocidad: {speed}m/s\n>Direccion: {dir} rad"
         if self.id == 65269:
-            temp: float = self.data_int * 0.01 - 273.15
+            temp: float = round(self.data_int * 0.01 - 273.15, 2)
             
             return f"Temperatura: {temp} °C"
         if self.id == 1000:
-            pr: float = self.data_int * 0.01 - 273.15
+            pr: float = round(self.data_int * 0.01 - 273.15, 2)
             return f"Punto de rocio: {pr} °C"
         """
         if self.id == 129029:
