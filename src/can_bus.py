@@ -11,11 +11,11 @@ cli_parser.add_argument("-b", "--bitrate", type=int)
 args = cli_parser.parse_args()
 
 class CanController:
-    def __init__(self, interface: str, channel: str, bitrate: int) -> None:
-        self.interface = interface
+    def __init__(self, bus_interface: str, channel: str, bitrate: int) -> None:
+        self.bus_interface = bus_interface
         self.channel = channel
         self.bitrate = bitrate
-        self.bus = can.Bus(interface=self.interface,
+        self.bus = can.interface.Bus(interface=self.bus_interface,
                            channel=self.channel,
                            bitrate  = self.bitrate,
                             receive_own_messages=True)  
@@ -45,4 +45,4 @@ if __name__ == '__main__':
         
     elif args.mode == "write":
         while True:
-            send: str = input("> ")
+            send: str = input("> ") 
