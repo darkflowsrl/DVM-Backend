@@ -103,7 +103,7 @@ async def main() -> None:
             loop = asyncio.get_running_loop()
             notifier = can.Notifier(bus, listeners, loop=loop)    
 
-            for _ in range(1000):
+            for _ in range(1000000):
                 msg = await reader.get_message()
                 await asyncio.sleep(0.5)
                 msg.arbitration_id += 1
