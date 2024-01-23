@@ -16,33 +16,41 @@ buffer: int = 1000
 
 def load_message(msg: can.Message) -> None:
     if len(buffer) >= buffer_len:
-            for msg in bus:
-                buffer.pop()
-                buffer.append(msg)
-                print(f"{msg.arbitration_id}: {msg.data}")
+        buffer.pop()
+        buffer.append(msg)
+        print(f"{msg.arbitration_id}: {msg.data}")
     else:
-        for msg in bus:
-            buffer.append(msg)
-            print(f"{msg.arbitration_id}: {msg.data}")
+        buffer.append(msg)
+        print(f"{msg.arbitration_id}: {msg.data}")
 
-if __name__ == '__main__':
+async def main() -> None:
     if args.mode == "read":
         with can.interface.Bus(channel=args.channel,
                                interface=args.interface,
-                               bitrate=args.bitrate) as bus:
-            
+                               bitrate=args.bitrate,
+                               receive_own_messages=True) as bus:
             reader = can.AsyncBufferedReader()
             logger = can.Logger("logfile.asc")
 
             listeners: List[can.notifier.MessageRecipient] = [
-            load_message, 
-            reader, 
-            logger, 
+                    load_message, 
+                    reader, 
+                    logger, 
             ]
             
             loop = asyncio.get_running_loop()
             notifier = can.Notifier(bus, listeners, loop=loop)    
-        
+
+            for _ in range(10):
+                msg = await reader.get_message()
+                await asyncio.sleep(0.5)
+                msg.arbitration_id += 1
+                bus.send(msg)
+                
+            await reader.get_message()
+            print("[end]")
+            notifier.stop()
+
 
         #read_thread = Thread()
         #read_thread.run()
@@ -50,3 +58,6 @@ if __name__ == '__main__':
     elif args.mode == "write":
         while True:
             send: str = input("> ") 
+
+if __name__ == '__main__':
+    asyncio.run(main())
