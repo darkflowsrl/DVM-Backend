@@ -36,11 +36,11 @@ class CanController:
 
 if __name__ == '__main__':
     if args.mode == "read":
-        while True:
-            controller = CanController(bus_interface=args.interface,
+        controller = CanController(bus_interface=args.interface,
                                 channel=args.channel,
                                 bitrate=args.bitrate)
         
+        while True:
             controller.start_reader()
             controller.bus.shutdown()
             
