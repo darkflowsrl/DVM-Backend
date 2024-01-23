@@ -1,6 +1,7 @@
 from typing import List
 import asyncio
 import can
+import os
 import argparse
 
 cli_parser = argparse.ArgumentParser()
@@ -125,7 +126,7 @@ if __name__ == '__main__':
     if args.mode == "read": asyncio.run(main())
     elif args.mode == "write":
         while True:
-            print('SELECCIONA UNA OPCIÓN:\n\t1) Set Velocidad individual\n\tBroadcast')
+            print('SELECCIONA UNA OPCIÓN:\n\t1) Set Velocidad individual\n\t2) Broadcast')
             option: int = int(input('> '))
             
             if option == 1:
@@ -148,12 +149,12 @@ if __name__ == '__main__':
                                   data=[],
                                   is_extended_id=True)
                 
-                
             with can.interface.Bus(channel=args.channel,
                                interface=args.interface,
                                bitrate=args.bitrate,
                                receive_own_messages=True) as bus:
                 try:
                     bus.send(msg)
+                    os.system('clear')
                 except can.CanError:
                     print('[error] Mensaje no enviado')
