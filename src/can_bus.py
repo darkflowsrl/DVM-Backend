@@ -12,7 +12,7 @@ cli_parser.add_argument("-b", "--bitrate", type=int)
 args = cli_parser.parse_args()
 
 buffer_len: int = 1000
-buffer: int = 1000
+buffer: list = []
 
 def load_message(msg: can.Message) -> None:
     if len(buffer) >= buffer_len:
