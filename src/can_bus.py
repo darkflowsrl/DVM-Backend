@@ -36,7 +36,7 @@ class CanController:
 
 if __name__ == '__main__':
     if args.mode == "read":
-        controller = CanController(interface=args.interface,
+        controller = CanController(bus_interface=args.interface,
                                 channel=args.channel,
                                 bitrate=args.bitrate)
         
