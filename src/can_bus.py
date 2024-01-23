@@ -49,7 +49,7 @@ class Parser:
             speed: float = round( int.from_bytes(self.data[0:2], byteorder='little') * 0.01, 2)
             dir: float = round((int.from_bytes(self.data[2:], byteorder='little') * 0.0001) * 180 / 3.14159 , 2)
             
-            return f"Velocidad: {speed}m/s\n> Direccion: {dir} rad"
+            return f"Velocidad: {speed}m/s\n> Direccion: {dir} °"
         if self.id == 65269:
             temp: float = round(self.data_int * 0.01 - 273.15, 2)
             
@@ -103,7 +103,7 @@ async def main() -> None:
             loop = asyncio.get_running_loop()
             notifier = can.Notifier(bus, listeners, loop=loop)    
 
-            for _ in range(10):
+            for _ in range(1000):
                 msg = await reader.get_message()
                 await asyncio.sleep(0.5)
                 msg.arbitration_id += 1
