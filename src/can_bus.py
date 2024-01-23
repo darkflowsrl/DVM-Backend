@@ -131,22 +131,21 @@ if __name__ == '__main__':
             
             if option == 1:
                 id: int = 64835
-                bytes = id.to_bytes(2, 'little')
-                num_motor: int = int(input('MOTOR No > '))
+                num_placa: int = int(input('PLACA No > '))
+                bytes_placa = num_placa.to_bytes(2, 'little')
                 rmp_1: int = int(input('RPM 1 > ')) // 40
                 rmp_2: int = int(input('RPM 2 > ')) // 40
                 rmp_3: int = int(input('RPM 3 > ')) // 40
                 rmp_4: int = int(input('RPM 4 > ')) // 40
                 msg = can.Message(arbitration_id=id,
-                                  data=[int(bytes[0]), int(bytes[1]), rmp_1, rmp_2, rmp_3, rmp_4],
+                                  data=[bytes_placa[0], bytes_placa[1], rmp_1, rmp_2, rmp_3, rmp_4],
                                   is_extended_id=True)
             elif option == 2:
-                id: int = 64835
-                id_placa: int = int(input('ID placa  > '))
-                num_motor: int = int(input('MOTOR No > '))
+                id: int = 64836
                 rmp: int = int(input('RPM > ')) // 40
+                bytes_rpm = rmp.to_bytes(2, 'little')
                 msg = can.Message(arbitration_id=id,
-                                  data=[],
+                                  data=[bytes_rpm[0], bytes_rpm[1]],
                                   is_extended_id=True)
                 
             with can.interface.Bus(channel=args.channel,
