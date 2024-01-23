@@ -18,10 +18,10 @@ def load_message(msg: can.Message) -> None:
     if len(buffer) >= buffer_len:
         buffer.pop()
         buffer.append(msg)
-        print(f"{msg.arbitration_id}: {msg.data} : {int.from_bytes(msg.data[0], byteorder='little')}")
+        print(f"{msg.arbitration_id}: {msg.data} : {int.from_bytes(msg.data, byteorder='little')}")
     else:
         buffer.append(msg)
-        print(f"{msg.arbitration_id}: {msg.data} :  {int.from_bytes(msg.data[0], byteorder='little')}")
+        print(f"{msg.arbitration_id}: {msg.data} :  {int.from_bytes(msg.data, byteorder='little')}")
 
 async def main() -> None:
     if args.mode == "read":
