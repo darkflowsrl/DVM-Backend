@@ -42,6 +42,8 @@ if __name__ == '__main__':
         
         while True:
             controller.start_reader()
+            
+        controller.bus.shutdown()
         
         #read_thread = Thread()
         #read_thread.run()
