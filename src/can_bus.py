@@ -5,7 +5,7 @@ import os
 import argparse
 
 cli_parser = argparse.ArgumentParser()
-cli_parser.add_argument("-m", "--mode", type=str)
+cli_parser.add_argument("-m", "--mode", type=str, choices=["read", "write"])
 cli_parser.add_argument("-i", "--interface", type=str)
 cli_parser.add_argument("-c", "--channel", type=str)
 cli_parser.add_argument("-b", "--bitrate", type=int)
