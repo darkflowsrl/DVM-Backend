@@ -122,4 +122,38 @@ async def main() -> None:
             send: str = input("> ") 
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    if args.mode == "read": asyncio.run(main())
+    elif args.mode == "write":
+        while True:
+            print('SELECCIONA UNA OPCIÓN:\n\t1) Set Velocidad individual\n\tBroadcast')
+            option: int = int(input('> '))
+            
+            if option == 1:
+                id: int = 64835
+                bytes = id.to_bytes(2, 'little')
+                num_motor: int = int(input('MOTOR No > '))
+                rmp_1: int = int(input('RPM 1 > ')) // 40
+                rmp_2: int = int(input('RPM 2 > ')) // 40
+                rmp_3: int = int(input('RPM 3 > ')) // 40
+                rmp_4: int = int(input('RPM 4 > ')) // 40
+                msg = can.Message(arbitration_id=id,
+                                  data=[int(bytes[0]), int(bytes[1]), rmp_1, rmp_2, rmp_3, rmp_4],
+                                  is_extended_id=True)
+            elif option == 2:
+                id: int = 64835
+                id_placa: int = int(input('ID placa  > '))
+                num_motor: int = int(input('MOTOR No > '))
+                rmp: int = int(input('RPM > ')) // 40
+                msg = can.Message(arbitration_id=id,
+                                  data=[],
+                                  is_extended_id=True)
+                
+                
+            with can.interface.Bus(channel=args.channel,
+                               interface=args.interface,
+                               bitrate=args.bitrate,
+                               receive_own_messages=True) as bus:
+                try:
+                    bus.send(msg)
+                except can.CanError:
+                    print('[error] Mensaje no enviado')
