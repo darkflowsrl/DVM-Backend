@@ -44,7 +44,7 @@ class Parser:
         
     def parse(self) -> str:
         if self.id == 130313:
-            return f"Humedad: {round(str(self.data_int * 0.004), 2)} %" 
+            return f"Humedad: {round(self.data_int * 0.004), 2} %" 
         if self.id == 130306:
             speed: float = round( int.from_bytes(self.data[0:2], byteorder='little') * 0.01, 2)
             dir: float = round(int.from_bytes(self.data[2:], byteorder='little') * 0.0001, 2)
