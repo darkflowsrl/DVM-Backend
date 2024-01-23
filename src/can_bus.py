@@ -44,19 +44,19 @@ class Parser:
         
     def parse(self) -> str:
         if self.id == 130313:
-            return "Humedad: " + str(self.data_int * 0.004)
+            return f"Humedad: {str(self.data_int * 0.004)} %" 
         if self.id == 130306:
             speed: float = int.from_bytes(self.data[0:2], byteorder='little') * 0.01
             dir: float = int.from_bytes(self.data[2:], byteorder='little') * 0.0001
             
-            return f"Velocidad: {speed}\nDireccion: {dir}"
+            return f"Velocidad: {speed}m/s\nDireccion: {dir} rad"
         if self.id == 65269:
             temp: float = self.data_int * 0.01 - 273.15
             
-            return f"Temperatura: {temp}"
+            return f"Temperatura: {temp} °C"
         if self.id == 1000:
             pr: float = self.data_int * 0.01 - 273.15
-            return f"Punto de rocio: {pr}"
+            return f"Punto de rocio: {pr} °C"
         """
         if self.id == 129029:
             return ""
@@ -67,6 +67,8 @@ class Parser:
         if self.id == 129032:
             return ""
         """
+        
+        return None
     
     
 def load_message(msg: can.Message) -> None:
@@ -74,13 +76,14 @@ def load_message(msg: can.Message) -> None:
         buffer.pop()
         buffer.append(msg)
         message_parser = Parser(msg.arbitration_id, msg.data)
-        
-        print(f"> {message_parser.parse()}")
+        parsed_msg: str = message_parser.parse()
+        if parsed_msg != None: print(f"> {parsed_msg}")
     else:
         buffer.append(msg)
         message_parser = Parser(msg.arbitration_id, msg.data)
         
-        print(f"> {message_parser.parse()}")
+        parsed_msg: str = message_parser.parse()
+        if parsed_msg != None: print(f"> {parsed_msg}")
 
 async def main() -> None:
     if args.mode == "read":
