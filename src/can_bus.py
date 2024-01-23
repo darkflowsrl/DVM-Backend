@@ -110,8 +110,8 @@ async def main() -> None:
                 bus.send(msg)
                 
             await reader.get_message()
-            #print("[end]")
-            #notifier.stop()
+            print("[end]")
+            notifier.stop()
 
 
         #read_thread = Thread()
