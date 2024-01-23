@@ -138,14 +138,14 @@ if __name__ == '__main__':
                 rmp_3: int = int(input('RPM 3 > ')) // 40
                 rmp_4: int = int(input('RPM 4 > ')) // 40
                 msg = can.Message(arbitration_id=id,
-                                  data=[bytes_placa[0], bytes_placa[1], rmp_1, rmp_2, rmp_3, rmp_4],
+                                  data=[bytes_placa[0], bytes_placa[1], rmp_1, rmp_2, rmp_3, rmp_4, 0, 0],
                                   is_extended_id=True)
             elif option == 2:
                 id: int = 64836
                 rmp: int = int(input('RPM > ')) // 40
                 bytes_rpm = rmp.to_bytes(2, 'little')
                 msg = can.Message(arbitration_id=id,
-                                  data=[bytes_rpm[0], bytes_rpm[1]],
+                                  data=[bytes_rpm[0], bytes_rpm[1], 0, 0, 0 ,0 ,0 ,0],
                                   is_extended_id=True)
                 
             with can.interface.Bus(channel=args.channel,
