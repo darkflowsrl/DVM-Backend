@@ -3,9 +3,10 @@ import can
 import argparse
 
 cli_parser = argparse.ArgumentParser()
-cli_parser.add_argument("interface")
-cli_parser.add_argument("channel")
-cli_parser.add_argument("bitrate")
+cli_parser.add_argument("-m", "--mode", type=str)
+cli_parser.add_argument("-i", "--interface", type=str)
+cli_parser.add_argument("-c", "--channel", type=str)
+cli_parser.add_argument("-b", "--bitrate", type=int)
 
 args = cli_parser.parse_args()
 
@@ -34,9 +35,14 @@ class CanController:
 
 
 if __name__ == '__main__':
-    controller = CanController(interface='socketcan',
-                               channel='can0',
-                               bitrate=250000)
-    
-    read_thread = Thread(controller.start_reader)
-    read_thread.run()
+    if args.mode == "read":
+        controller = CanController(interface=args.interface,
+                                channel=args.channel,
+                                bitrate=args.bitrate)
+        
+        read_thread = Thread(controller.start_reader)
+        read_thread.run()
+        
+    elif args.mode == "write":
+        while True:
+            send: str = input("> ")
