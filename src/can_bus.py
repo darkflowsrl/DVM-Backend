@@ -40,8 +40,11 @@ if __name__ == '__main__':
                                 channel=args.channel,
                                 bitrate=args.bitrate)
         
-        read_thread = Thread(controller.start_reader)
-        read_thread.run()
+        while True:
+            controller.start_reader()
+        
+        #read_thread = Thread()
+        #read_thread.run()
         
     elif args.mode == "write":
         while True:
