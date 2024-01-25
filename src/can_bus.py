@@ -12,6 +12,7 @@ buffer: StateBuffer = StateBuffer()
     
 def load_message(msg: can.Message) -> None:
     message_parser = Parser(msg.arbitration_id, msg.data)
+    global buffer
     buffer: str = message_parser.parse(buffer)
     
     print(buffer)
