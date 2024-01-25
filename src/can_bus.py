@@ -47,15 +47,19 @@ def write_on_bus_all_params(bus_config: CanPortConfig, params: BoardParams) -> N
                                receive_own_messages=True) as bus:
                 try:
                     bus.send(msg)
+                    print('[ok] Mensaje enviado')
                 except can.CanError:
                     print('[error] Mensaje no enviado')
                     
                     
 if __name__ == '__main__':
     from threading import Thread
+    from time import sleep
     
     task = Thread(target=reader_loop, args=(port_config,))
     task.start()
     
-    write_on_bus_all_params(bus_config=port_config, params=BoardParams(875, 877, 877, 877, 877))
-            
+    
+    for i in range(9):
+        write_on_bus_all_params(bus_config=port_config, params=BoardParams(875, 877, 877, 877, 877))
+        sleep(1)    
