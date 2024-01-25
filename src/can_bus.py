@@ -1,5 +1,5 @@
 from typing import List
-from src.canbus_parser import *
+from canbus_parser import *
 import asyncio
 import can
 import os
