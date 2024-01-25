@@ -17,7 +17,7 @@ def send_data_over_socket() -> None:
                 conn, add = sock.accept()
                 with conn:
                     while True:
-                        conn.sendall(str(buffer.parse_dict()))
+                        conn.sendall(str(buffer.parse_dict()).encode())
                 
         except Exception as e:
             print(e)
