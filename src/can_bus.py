@@ -8,12 +8,13 @@ port_config: CanPortConfig = CanPortConfig(interface="socketcan",
                                            channel="can0",
                                            baudrate=250000)
 
-buffer: StateBuffer = StateBuffer()
+buffer = StateBuffer()
     
 def load_message(msg: can.Message) -> None:
-    message_parser = Parser(msg.arbitration_id, msg.data)
     global buffer
-    buffer: str = message_parser.parse(buffer)
+    
+    message_parser = Parser(msg.arbitration_id, msg.data)
+    buffer: StateBuffer = message_parser.parse(buffer)
     
     print(buffer)
     
