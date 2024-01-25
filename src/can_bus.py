@@ -25,8 +25,8 @@ def reader_loop(config: CanPortConfig) -> None:
             try:
                 for message in bus:
                     load_message(message)
-            except:
-                pass
+            except Exception as e:
+                print(e)
             
 def write_on_bus_all_params(bus_config: CanPortConfig, params: BoardParams) -> None:
     id: int = 64835
