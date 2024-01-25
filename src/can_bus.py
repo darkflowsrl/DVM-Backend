@@ -14,7 +14,7 @@ def load_message(msg: can.Message) -> None:
     global buffer
     
     message_parser = Parser(msg.arbitration_id, msg.data)
-    buffer: StateBuffer = message_parser.parse(buffer)
+    buffer = message_parser.parse(buffer)
     
     print(buffer)
     
