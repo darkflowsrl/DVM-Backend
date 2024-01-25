@@ -56,4 +56,6 @@ if __name__ == '__main__':
     
     task = Thread(target=reader_loop, args=(port_config,))
     task.start()
+    
+    write_on_bus_all_params(bus_config=port_config, params=BoardParams(875, 877, 877, 877, 877))
             

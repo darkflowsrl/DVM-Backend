@@ -20,6 +20,7 @@ class StateBuffer:
         self.wind_speed = wind_speed
         self.temp = temp
         self.pr = pr
+        self.engine_states = {}
         
     def parse_dict(self) -> dict:
         return {
