@@ -35,10 +35,10 @@ def write_on_bus_all_params(bus_config: CanPortConfig, params: BoardParams) -> N
     msg = can.Message(arbitration_id=id,
                                   data=[params.board_id_bytes[0],
                                         params.board_id_bytes[1],
-                                        params.m1_rpm,
-                                        params.m2_rpm,
-                                        params.m3_rpm,
-                                        params.m4_rpm, 0, 0],
+                                        params.m1_rpm//50,
+                                        params.m2_rpm//50,
+                                        params.m3_rpm//50,
+                                        params.m4_rpm//50, 0, 0],
                                   is_extended_id=True)
     
     with can.interface.Bus(channel=bus_config.channel,
