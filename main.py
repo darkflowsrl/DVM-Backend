@@ -12,12 +12,20 @@ desde el hardware.
 """
 os.system("ip link set can0 down")
 os.system("ip link set can0 type can restart")
+os.system("ip link set can0 type can bitrate 250000")
 os.system("ip link set can0 up")
 
 HOST: str = '192.168.0.12'
 PORT: int = 8080
 FAMILY: int = socket.AF_INET
 TYPE: int = socket.SOCK_STREAM
+CONNECTED: bool = False
+
+sock = socket.socket(FAMILY, TYPE)
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+sock.bind((HOST, PORT))
+sock.listen()
+conn, add = sock.accept(); CONNECTED = True
 
 """
 DOCUMENTACIÓN:
@@ -80,54 +88,52 @@ Protocolo de estado general del nodo:
 """
 
 def send_data_over_socket() -> None:
+    global CONNECTED
     while True:
         try:
-            with socket.socket(FAMILY, TYPE) as sock:
-                sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                sock.bind((HOST, PORT))
-                sock.listen()
-                conn, _ = sock.accept()
-                with conn:
-                    while True:
-                        data_meteor = json.dumps(buffer.parse_meteor()).encode()
-                        data_node_data = json.dumps(buffer.parse_node()).encode()
-                        sleep(0.5)
-                        conn.sendall(data_meteor)
-                        sleep(0.5)
-                        conn.sendall(data_node_data)
+            while True:
+                if not CONNECTED:
+                    break
+                
+                data_meteor = json.dumps(buffer.parse_meteor()).encode()
+                data_node_data = json.dumps(buffer.parse_node()).encode()
+                sleep(0.5)
+                conn.sendall(data_meteor)
+                sleep(0.5)
+                conn.sendall(data_node_data)
                 
         except Exception as e:
+            CONNECTED = False
             print("[error] send_data_over_socket")
             print(e)
             
 def send_data_over_node() -> None:
+    global CONNECTED
     while True:
         try:
-            with socket.socket(FAMILY, TYPE) as sock:
-                sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                sock.bind((HOST, PORT+1))
-                sock.listen()
-                conn, _ = sock.accept()
-                
-                with conn:
-                    while True:
-                        data = conn.recv(1024)
-                        if not data: break
-                        data = json.loads(data)
-                        command: str = data["command"] 
+            while True:
+                if not CONNECTED:
+                    global conn, add
+                    conn, add = sock.accept(); CONNECTED = True
+                    break
+                data = conn.recv(1024)
+                if not data: break
+                data = json.loads(data)
+                command: str = data["command"] 
 
-                        if command == "testing":
-                            for node in data["nodes"]:
-                                write_on_bus_test(bus_config=port_config,
-                                                params=BoardTest(node))
-                        elif command == "normal":
-                            write_on_bus_all_rpm(bus_config=port_config,
-                                                 params=BoardParams(data["nodo"],
-                                                             data["rpm1"],
-                                                             data["rpm2"],
-                                                             data["rpm3"],
-                                                             data["rpm4"]))                         
+                if command == "testing":
+                    for node in data["nodes"]:
+                        write_on_bus_test(bus_config=port_config,
+                                        params=BoardTest(node))
+                elif command == "normal":
+                    write_on_bus_all_rpm(bus_config=port_config,
+                                            params=BoardParams(data["nodo"],
+                                                        data["rpm1"],
+                                                        data["rpm2"],
+                                                        data["rpm3"],
+                                                        data["rpm4"]))                         
         except Exception as e: 
+            CONNECTED = False
             print("[error] send_data_over_node")
             print(e)
     
