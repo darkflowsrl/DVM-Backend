@@ -104,11 +104,9 @@ def send_data_over_node() -> None:
                     while True:
                         data = conn.recv(1024)
                         if not data: break
-                        print('1')
                         data = json.loads(data)
-                        print('2')
                         command: str = data["command"] 
-                        print('3')
+
                         if command == "testing":
                             for node in data["nodes"]:
                                 write_on_bus_test(bus_config=port_config,
@@ -116,10 +114,10 @@ def send_data_over_node() -> None:
                         elif command == "normal":
                             write_on_bus_all_rpm(bus_config=port_config,
                                                  params=BoardParams(data["command"],
-                                                             data["rpm1"],
-                                                             data["rpm2"],
-                                                             data["rpm3"],
-                                                             data["rpm4"]))                         
+                                                             int(data["rpm1"]),
+                                                             int(data["rpm2"]),
+                                                             int(data["rpm3"]),
+                                                             int(data["rpm4"])))                         
         except Exception as e: 
             print("[error] send_data_over_node")
             print(e)
