@@ -121,9 +121,9 @@ def send_data_over_node() -> None:
             print(e)
     
 if __name__ == '__main__':
-    task_read = Thread(target=reader_loop, args=(port_config,), daemon=True)
-    task_write_into_front = Thread(target=send_data_over_socket, daemon=True)
-    task_write_into_node = Thread(target=send_data_over_node, daemon=True)
+    task_read = Thread(target=reader_loop, args=(port_config,))
+    task_write_into_front = Thread(target=send_data_over_socket)
+    task_write_into_node = Thread(target=send_data_over_node)
     
     task_read.start()
     task_write_into_front.start()
