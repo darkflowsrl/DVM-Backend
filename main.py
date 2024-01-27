@@ -113,20 +113,25 @@ def send_data_over_node() -> None:
                                                 params=BoardTest(node))
                         elif command == "normal":
                             write_on_bus_all_rpm(bus_config=port_config,
-                                                 params=BoardParams(int(data["command"]),
-                                                             int(data["rpm1"]),
-                                                             int(data["rpm2"]),
-                                                             int(data["rpm3"]),
-                                                             int(data["rpm4"])))                         
+                                                 params=BoardParams(data["nodo"],
+                                                             data["rpm1"],
+                                                             data["rpm2"],
+                                                             data["rpm3"],
+                                                             data["rpm4"]))                         
         except Exception as e: 
             print("[error] send_data_over_node")
             print(e)
     
 if __name__ == '__main__':
-    task_read = Thread(target=reader_loop, args=(port_config,))
-    task_write_into_front = Thread(target=send_data_over_socket)
-    task_write_into_node = Thread(target=send_data_over_node)
-    
-    task_read.start()
-    task_write_into_front.start()
-    task_write_into_node.start()
+    while True:
+        task_read = Thread(target=reader_loop, args=(port_config,))
+        task_write_into_front = Thread(target=send_data_over_socket)
+        task_write_into_node = Thread(target=send_data_over_node)
+
+        task_read.start()
+        task_write_into_front.start()
+        task_write_into_node.start()
+        
+        task_read.join()
+        task_write_into_front.join()
+        task_write_into_node.join()
