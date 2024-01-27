@@ -1,5 +1,28 @@
 from copy import deepcopy
 
+"""
+(Formato Python)
+Guardado de los estados de los motores por cada Nodo:
+[
+    {
+        "nodo" : 1030,
+        "state1" : 2000,
+        "state2" : 2500,
+        "state3" : 3000,
+        "state4" : 1500,
+        "rpm1" : 2000,
+        "rpm2" : 2500,
+        "rpm3" : 3000,
+        "rpm4" : 1500,
+        "corr1" : 3.2,
+        "corr2" : 3.1,
+        "corr3" : 4.2,
+        "corr4" : 3.4,
+        "voltaje" : 12.2
+    }
+]
+
+"""
 class CanPortConfig:
     def __init__(self, interface: str,
                  channel: str,
@@ -15,14 +38,105 @@ class StateBuffer:
                  wind_speed: int = None,
                  temp: int = None,
                  pr: int = None) -> None:
-        self.hum = hum
-        self.wind_dir = wind_dir
-        self.wind_speed = wind_speed
-        self.temp = temp
-        self.pr = pr
-        self.engine_states = {}
+        self.hum: int = hum
+        self.wind_dir: int = wind_dir
+        self.wind_speed: int = wind_speed
+        self.temp: int = temp
+        self.pr: int = pr
+        self.node_states: list = []
         
-    def parse_dict(self) -> dict:
+    def put_node_states_test(self,
+                        id: int,
+                        state1: int,
+                        state2: int,
+                        state3: int,
+                        state4: int,
+                        v: float) -> None:
+        
+        
+        for k, node in self.node_states:
+            if node["nodo"] == id:
+                self.node_states[k]["state1"] = state1
+                self.node_states[k]["state2"] = state2
+                self.node_states[k]["state3"] = state3
+                self.node_states[k]["state4"] = state4
+                self.node_states[k]["voltaje"] = v
+                
+                return
+        
+        self.node_states.append({
+            {
+                "nodo" : id,
+                "state1" : state1,
+                "state2" : state2,
+                "state3" : state3,
+                "state4" : state4,
+                "voltaje" : v
+            }
+        })
+        
+        return
+        
+    def put_node_states_rpm(self,
+                        id: int,
+                        rpm1: int,
+                        rpm2: int,
+                        rpm3: int,
+                        rpm4: int) -> None:
+        
+        for k, node in self.node_states:
+            if node["nodo"] == id:
+                self.node_states[k]["rpm1"] = rpm1
+                self.node_states[k]["rpm2"] = rpm2
+                self.node_states[k]["rpm3"] = rpm3
+                self.node_states[k]["rpm4"] = rpm4
+
+                return
+        
+        self.node_states.append({
+            {
+                "nodo" : id,
+                "rpm1" : rpm1,
+                "rpm2" : rpm2,
+                "rpm3" : rpm3,
+                "rpm4" : rpm4,
+            }
+        })
+        
+        return
+    
+    def put_node_states_currency_voltage(self,
+                        id: int,
+                        corr1: int,
+                        corr2: int,
+                        corr3: int,
+                        corr4: int,
+                        v: float) -> None:
+        
+        for k, node in self.node_states:
+            if node["nodo"] == id:
+                self.node_states[k]["corr1"] = corr1
+                self.node_states[k]["corr2"] = corr2
+                self.node_states[k]["corr3"] = corr3
+                self.node_states[k]["corr4"] = corr4
+                self.node_states[k]["voltaje"] = v
+                
+                return
+        
+        self.node_states.append({
+            {
+                "nodo" : id,
+                "corr1" : corr1,
+                "corr2" : corr2,
+                "corr3" : corr3,
+                "corr4" : corr4,
+                "voltaje" : v
+            }
+        })
+        
+        return
+    
+    def parse_meteor(self) -> dict:
         return {
             "humedad" : self.hum,
             "velViento" : self.wind_speed,
@@ -30,6 +144,13 @@ class StateBuffer:
             "temperatura" : self.temp,
             "puntoDeRocio" : self.pr
         }
+        
+    def parse_node(self) -> dict:
+        for k, node in self.node_states:
+            if node["nodo"] == id:
+                return self.node_states[k]
+            
+        return {}
     
     def __str__(self) -> str:
         return str(self.parse_dict())
@@ -60,8 +181,51 @@ class Parser:
             pr: float = round(self.data_int * 0.01 - 273.15, 2)
             mod_buffer.pr = pr
         
-        else:
-            ...
+        elif self.id == 64070:
+            id_board: int = int.from_bytes(self.data[0:2], byteorder='little')
+            state1: int = int.from_bytes(self.data[2], byteorder='little')
+            state2: int = int.from_bytes(self.data[3], byteorder='little')
+            state3: int = int.from_bytes(self.data[4], byteorder='little')
+            state4: int = int.from_bytes(self.data[5], byteorder='little')
+            
+            voltaje: int = int.from_bytes(self.data[6], byteorder='little') * 0.1
+            
+            mod_buffer.put_node_states_test(id_board,
+                                            state1,
+                                            state2,
+                                            state3,
+                                            state4,
+                                            voltaje)
+        
+        elif self.id == 64837:
+            id_board: int = int.from_bytes(self.data[0:2], byteorder='little')
+            rpm1: int = int.from_bytes(self.data[2], byteorder='little') * 50
+            rpm2: int = int.from_bytes(self.data[3], byteorder='little') * 50
+            rpm3: int = int.from_bytes(self.data[4], byteorder='little') * 50
+            rpm4: int = int.from_bytes(self.data[5], byteorder='little') * 50
+            
+            mod_buffer.put_node_states_rpm(id_board,
+                                            rpm1,
+                                            rpm2,
+                                            rpm3,
+                                            rpm4)
+        
+        elif self.id == 64837:
+            id_board: int = int.from_bytes(self.data[0:2], byteorder='little')
+            corr1: int = int.from_bytes(self.data[2], byteorder='little')
+            corr2: int = int.from_bytes(self.data[3], byteorder='little')
+            corr3: int = int.from_bytes(self.data[4], byteorder='little')
+            corr4: int = int.from_bytes(self.data[5], byteorder='little')
+            
+            voltaje: int = int.from_bytes(self.data[6], byteorder='little') * 0.1
+            
+            mod_buffer.put_node_states_currency_voltage(id_board,
+                                            corr1,
+                                            corr2,
+                                            corr3,
+                                            corr4,
+                                            voltaje)
+            
         
         return deepcopy(mod_buffer)
     
@@ -79,6 +243,13 @@ class BoardParams:
         self.m2_rpm = m2_rpm
         self.m3_rpm = m3_rpm
         self.m4_rpm = m4_rpm
+
+class BoardTest:
+    def __init__(self,
+                 board_id: int) -> None:
+        
+        self.board_id = board_id
+        self.board_id_bytes = self.board_id.to_bytes(2, 'little')
     
 if __name__ == '__main__':
     m = StateBuffer()

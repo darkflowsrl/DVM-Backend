@@ -1,8 +1,7 @@
-from typing import List
 from src.canbus_parser import *
-import asyncio
 import can
-import os
+
+TEST: bool = True
 
 port_config: CanPortConfig = CanPortConfig(interface="socketcan",
                                            channel="can0",
@@ -30,7 +29,7 @@ def reader_loop(config: CanPortConfig) -> None:
             except Exception as e:
                 print(e)
             
-def write_on_bus_all_params(bus_config: CanPortConfig, params: BoardParams) -> None:
+def write_on_bus_all_rpm(bus_config: CanPortConfig, params: BoardParams) -> None:
     id: int = 64835
     msg = can.Message(arbitration_id=id,
                                   data=[params.board_id_bytes[0],
@@ -47,10 +46,26 @@ def write_on_bus_all_params(bus_config: CanPortConfig, params: BoardParams) -> N
                                receive_own_messages=True) as bus:
                 try:
                     bus.send(msg)
-                    print('[ok] Mensaje enviado')
+                    print('[ok] Mensaje enviado : write_on_bus_all_rpm')
                 except can.CanError:
-                    print('[error] Mensaje no enviado')
-                    
+                    print('[error] Mensaje no enviado : write_on_bus_all_rpm')
+
+def write_on_bus_test(bus_config: CanPortConfig, params: BoardTest) -> None:
+    id: int = 64069
+    msg = can.Message(arbitration_id=id,
+                                  data=[params.board_id_bytes[0],
+                                        params.board_id_bytes[1], 0, 0, 0, 0, 0, 0],
+                                  is_extended_id=True)
+    
+    with can.interface.Bus(channel=bus_config.channel,
+                               interface=bus_config.interface,
+                               bitrate=bus_config.baudrate,
+                               receive_own_messages=True) as bus:
+                try:
+                    bus.send(msg)
+                    print('[ok] Mensaje enviado : write_on_bus_test')
+                except can.CanError:
+                    print('[error] Mensaje no enviado : write_on_bus_test')
                     
 if __name__ == '__main__':
     from threading import Thread
@@ -61,5 +76,5 @@ if __name__ == '__main__':
     
     
     for i in range(9):
-        write_on_bus_all_params(bus_config=port_config, params=BoardParams(875, 877, 877, 877, 877))
+        write_on_bus_all_rpm(bus_config=port_config, params=BoardParams(1030, 2000, 2000, 2000, 2000))
         sleep(1)    
