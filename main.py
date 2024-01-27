@@ -102,12 +102,13 @@ def send_data_over_node() -> None:
                 
                 with conn:
                     while True:
-                        data = conn.recv(1024).decode()
-                        print(data)
+                        data = conn.recv(1024)
                         if not data: break
+                        print('1')
                         data = json.loads(data)
+                        print('2')
                         command: str = data["command"] 
-                        
+                        print('3')
                         if command == "testing":
                             for node in data["nodes"]:
                                 write_on_bus_test(bus_config=port_config,
