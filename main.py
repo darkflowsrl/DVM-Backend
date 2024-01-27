@@ -113,7 +113,7 @@ def send_data_over_node() -> None:
                                                 params=BoardTest(node))
                         elif command == "normal":
                             write_on_bus_all_rpm(bus_config=port_config,
-                                                 params=BoardParams(data["command"],
+                                                 params=BoardParams(int(data["command"]),
                                                              int(data["rpm1"]),
                                                              int(data["rpm2"]),
                                                              int(data["rpm3"]),
