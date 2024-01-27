@@ -8,7 +8,7 @@ import json
 HOST: str = '192.168.0.12'
 PORT: int = 8080
 FAMILY: int = socket.AF_INET
-TYPE: int = socket.SOCK_STREAM
+TYPE: int = socket.SO_REUSEADDR
 
 """
 DOCUMENTACIÓN:
@@ -97,6 +97,7 @@ def send_data_over_node() -> None:
                 sock.bind((HOST, PORT+1))
                 sock.listen()
                 conn, _ = sock.accept()
+                
                 with conn:
                     while True:
                         data = conn.recv(1024).decode()
