@@ -5,7 +5,7 @@ from time import sleep
 import socket
 import json
 
-HOST: str = '127.0.0.1'
+HOST: str = '192.168.0.12'
 PORT: int = 8080
 FAMILY: int = socket.AF_INET
 TYPE: int = socket.SOCK_STREAM
