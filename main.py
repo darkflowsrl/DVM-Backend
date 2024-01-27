@@ -4,6 +4,15 @@ from threading import Thread
 from time import sleep
 import socket
 import json
+import os
+
+"""
+Los siguientes comandos de linux sirven para levantar la interfaz can0
+desde el hardware.
+"""
+os.system("ip link set can0 down")
+os.system("ip link set can0 type can restart")
+os.system("ip link set can0 up")
 
 HOST: str = '192.168.0.12'
 PORT: int = 8080
