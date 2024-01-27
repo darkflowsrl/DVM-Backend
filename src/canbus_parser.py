@@ -151,9 +151,6 @@ class StateBuffer:
                 return self.node_states[k]
             
         return {}
-    
-    def __str__(self) -> str:
-        return str(self.parse_dict())
 
 class Parser:
     def __init__(self, id: int, data: bytearray) -> None:
