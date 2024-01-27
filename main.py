@@ -94,7 +94,7 @@ def send_data_over_node() -> None:
     while True:
         try:
             with socket.socket(FAMILY, TYPE) as sock:
-                sock.bind((HOST, PORT))
+                sock.bind((HOST, PORT+1))
                 sock.listen()
                 conn, _ = sock.accept()
                 with conn:
