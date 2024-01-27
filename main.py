@@ -103,6 +103,7 @@ def send_data_over_node() -> None:
                 with conn:
                     while True:
                         data = conn.recv(1024).decode()
+                        print(data)
                         if not data: break
                         data = json.loads(data)
                         command: str = data["command"] 
@@ -117,8 +118,7 @@ def send_data_over_node() -> None:
                                                              data["rpm1"],
                                                              data["rpm2"],
                                                              data["rpm3"],
-                                                             data["rpm4"]))
-                                                             
+                                                             data["rpm4"]))                         
         except Exception as e: 
             print("[error] send_data_over_node")
             print(e)
