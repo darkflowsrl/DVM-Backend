@@ -15,8 +15,6 @@ def load_message(msg: can.Message) -> None:
     message_parser = Parser(msg.arbitration_id, msg.data)
     buffer = message_parser.parse(buffer)
     
-    print(buffer)
-    
 def reader_loop(config: CanPortConfig) -> None:
     with can.interface.Bus(channel=config.channel,
                             interface=config.interface,
