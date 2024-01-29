@@ -29,14 +29,6 @@ conn, add = sock.accept(); CONNECTED = True
 
 """
 DOCUMENTACIÓN:
-Para mejorar la comunicación entre el frontend y el backend a travez del socket
-y no esperar un mensaje entre dispositivos con el fin de que la comunicación sea
-continua, el backend esuchará al front por el puerto 8081 y escribirá al front en el puerto 8080
-y viceversa:
-
-B -- :8080 --> F
-B <-- :8081 -- F
-
 Se propone el siguiente protocolo actualizado:
 Al utilizar el socket y no utilizar comandos, para saber a que proceso
 corresponde cada mensaje, se utilizará la variable command.

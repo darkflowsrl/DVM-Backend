@@ -43,7 +43,7 @@ class StateBuffer:
         self.wind_speed: int = wind_speed
         self.temp: int = temp
         self.pr: int = pr
-        self.node_states: list = []
+        self.node_states: list = {"nodes" : []}
         
     def put_node_states_test(self,
                         id: int,
@@ -54,17 +54,17 @@ class StateBuffer:
                         v: float) -> None:
         
         
-        for k, node in self.node_states:
+        for k, node in self.node_states["nodes"]:
             if node["nodo"] == id:
-                self.node_states[k]["state1"] = state1
-                self.node_states[k]["state2"] = state2
-                self.node_states[k]["state3"] = state3
-                self.node_states[k]["state4"] = state4
-                self.node_states[k]["voltaje"] = v
+                self.node_states["nodes"][k]["state1"] = state1
+                self.node_states["nodes"][k]["state2"] = state2
+                self.node_states["nodes"][k]["state3"] = state3
+                self.node_states["nodes"][k]["state4"] = state4
+                self.node_states["nodes"][k]["voltaje"] = v
                 
                 return
         
-        self.node_states.append({
+        self.node_states["nodes"].append({
             {
                 "nodo" : id,
                 "state1" : state1,
@@ -84,16 +84,16 @@ class StateBuffer:
                         rpm3: int,
                         rpm4: int) -> None:
         
-        for k, node in self.node_states:
+        for k, node in self.node_states["nodes"]:
             if node["nodo"] == id:
-                self.node_states[k]["rpm1"] = rpm1
-                self.node_states[k]["rpm2"] = rpm2
-                self.node_states[k]["rpm3"] = rpm3
-                self.node_states[k]["rpm4"] = rpm4
+                self.node_states["nodes"][k]["rpm1"] = rpm1
+                self.node_states["nodes"][k]["rpm2"] = rpm2
+                self.node_states["nodes"][k]["rpm3"] = rpm3
+                self.node_states["nodes"][k]["rpm4"] = rpm4
 
                 return
         
-        self.node_states.append({
+        self.node_states["nodes"].append({
             {
                 "nodo" : id,
                 "rpm1" : rpm1,
@@ -113,17 +113,17 @@ class StateBuffer:
                         corr4: int,
                         v: float) -> None:
         
-        for k, node in self.node_states:
+        for k, node in self.node_states["nodes"]:
             if node["nodo"] == id:
-                self.node_states[k]["corr1"] = corr1
-                self.node_states[k]["corr2"] = corr2
-                self.node_states[k]["corr3"] = corr3
-                self.node_states[k]["corr4"] = corr4
-                self.node_states[k]["voltaje"] = v
+                self.node_states["nodes"][k]["corr1"] = corr1
+                self.node_states["nodes"][k]["corr2"] = corr2
+                self.node_states["nodes"][k]["corr3"] = corr3
+                self.node_states["nodes"][k]["corr4"] = corr4
+                self.node_states["nodes"][k]["voltaje"] = v
                 
                 return
         
-        self.node_states.append({
+        self.node_states["nodes"].append({
             {
                 "nodo" : id,
                 "corr1" : corr1,
@@ -146,9 +146,9 @@ class StateBuffer:
         }
         
     def parse_node(self) -> dict:
-        for k, node in self.node_states:
+        for k, node in self.node_states["nodes"]:
             if node["nodo"] == id:
-                return self.node_states[k]
+                return self.node_states["nodes"][k]
             
         return {}
 

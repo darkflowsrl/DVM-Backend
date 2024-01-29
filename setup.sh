@@ -11,6 +11,8 @@ cd Darkflow-HMI-Backend
 chmod +x disable_gui.sh
 bash ./disable_gui.sh
 
+chmod +x 
+
 pip3 install -r requirements.txt
 
 reboot

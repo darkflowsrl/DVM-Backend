@@ -10,6 +10,7 @@ TYPE: int = socket.SOCK_STREAM
 CONNECTED: bool = False
 
 sock = socket.socket(FAMILY, TYPE)
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind((HOST, PORT))
 sock.listen()
 conn, add = sock.accept(); CONNECTED = True
