@@ -138,6 +138,7 @@ class StateBuffer:
     
     def parse_meteor(self) -> dict:
         return {
+            "command" : "datosMeteorologicos",
             "humedad" : self.hum,
             "velViento" : self.wind_speed,
             "dirViento" : self.wind_dir,
