@@ -15,7 +15,7 @@ os.system("ip link set can0 type can restart")
 os.system("ip link set can0 type can bitrate 250000")
 os.system("ip link set can0 up")
 
-HOST: str = '192.168.0.12'
+HOST: str = '192.168.1.39'
 PORT: int = 8080
 FAMILY: int = socket.AF_INET
 TYPE: int = socket.SOCK_STREAM
