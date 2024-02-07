@@ -43,7 +43,7 @@ class StateBuffer:
         self.wind_speed: int = wind_speed
         self.temp: int = temp
         self.pr: int = pr
-        self.node_states: list = {"nodes" : []}
+        self.node_states: dict = {"nodes" : []}
         
     def put_node_states_test(self,
                         id: int,
