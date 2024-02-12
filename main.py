@@ -10,7 +10,7 @@ import os
 Los siguientes comandos de linux sirven para levantar la interfaz can0
 desde el hardware.
 """
-HOST: str = '192.168.1.39'
+HOST: str = 'localhost'
 PORT: int = 8080
 FAMILY: int = socket.AF_INET
 TYPE: int = socket.SOCK_STREAM
