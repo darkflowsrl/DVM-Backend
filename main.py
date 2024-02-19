@@ -1,10 +1,10 @@
 from src.can_bus import reader_loop, write_on_bus_all_rpm, write_on_bus_test, buffer, port_config
 from src.canbus_parser import *
+from src.log import log
 from threading import Thread
 from time import sleep
 import socket
 import json
-import os
 
 """
 Los siguientes comandos de linux sirven para levantar la interfaz can0
@@ -19,8 +19,9 @@ CONNECTED: bool = False
 sock = socket.socket(FAMILY, TYPE)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind((HOST, PORT))
-sock.listen()
-conn, add = sock.accept(); CONNECTED = True
+clients: list = []
+
+log("Se inicio el script satisfactoriamente.", 'main')
 
 """
 DOCUMENTACIÓN:
@@ -74,40 +75,57 @@ Protocolo de estado general del nodo:
 }
 """
 
-def send_data_over_socket() -> None:
-    global CONNECTED
+def _listen_for_incomming_clients() -> None:
+    global sock
+    sock.listen(1)
+    sock.settimeout(10)  # Establecer un tiempo de espera de 10 segundos
+    
     while True:
         try:
-            while True:
-                if not CONNECTED:
-                    break
-                
-                data_meteor = json.dumps(buffer.parse_meteor()).encode()
-                data_node_data = json.dumps(buffer.parse_node()).encode()
-                sleep(0.5)
-                conn.sendall(data_meteor)
-                sleep(0.5)
-                conn.sendall(data_node_data)
-                
-        except Exception as e:
-            CONNECTED = False
-            print("[error] send_data_over_socket")
-            print(e)
+            conn, addr = sock.accept()
+            log(f'Nuevo cliente conectado: {addr}', '_listen_for_incomming_clients')
+            clients.append({'conn': conn, 'addr': addr})
+        except socket.timeout:
+            pass
+    
+def send_data_over_socket() -> None:
+    global clients
+    
+    while True:
+        if len(clients) != 0:
+            for idx, client in enumerate(clients):
+                try:
+                    conn = client['conn']
+                    data_meteor = json.dumps(buffer.parse_meteor()).encode()
+                    data_node_data = json.dumps(buffer.parse_node()).encode()
+                    
+                    sleep(0.5)
+                    conn.sendall(data_meteor)
+                    sleep(0.5)
+                    conn.sendall(data_node_data)
+                        
+                except ConnectionError as e:
+                    del clients[idx]
+                    log(str(e), 'send_data_over_socket')
+                except OSError:
+                    pass
             
 def send_data_over_node() -> None:
-    global CONNECTED
+    global clients
+    
     while True:
         try:
-            while True:
-                if not CONNECTED:
-                    global conn, add
-                    conn, add = sock.accept(); CONNECTED = True
-                    break
+            if len(clients) != 0:
+                conn = clients[0]["conn"]
                 data = conn.recv(1024)
                 if not data: break
+                
+                log(f'Nuevo Mensaje: {data}', 'send_data_over_node')
+                
                 data = json.loads(data)
                 command: str = data["command"] 
 
+                
                 if command == "testing":
                     for node in data["nodes"]:
                         write_on_bus_test(bus_config=port_config,
@@ -120,20 +138,22 @@ def send_data_over_node() -> None:
                                                         data["rpm3"],
                                                         data["rpm4"]))                         
         except Exception as e: 
-            CONNECTED = False
             print("[error] send_data_over_node")
             print(e)
     
 if __name__ == '__main__':
     while True:
+        task_wait_for_client = Thread(target=_listen_for_incomming_clients)
         task_read_node = Thread(target=reader_loop, args=(port_config,))
         task_write_into_front = Thread(target=send_data_over_socket)
         task_write_into_node = Thread(target=send_data_over_node)
 
+        task_wait_for_client.start()
         task_read_node.start()
         task_write_into_front.start()
         task_write_into_node.start()
         
+        task_wait_for_client.join()
         task_read_node.join()
         task_write_into_front.join()
         task_write_into_node.join()

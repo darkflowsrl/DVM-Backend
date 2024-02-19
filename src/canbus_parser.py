@@ -33,11 +33,11 @@ class CanPortConfig:
 
 class StateBuffer:
     def __init__(self,
-                 hum: int = None,
-                 wind_dir: int = None,
-                 wind_speed: int = None,
-                 temp: int = None,
-                 pr: int = None) -> None:
+                 hum: int = 0,
+                 wind_dir: int = 0,
+                 wind_speed: int = 0,
+                 temp: int = 0,
+                 pr: int = 0) -> None:
         self.hum: int = hum
         self.wind_dir: int = wind_dir
         self.wind_speed: int = wind_speed

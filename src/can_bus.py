@@ -1,4 +1,5 @@
 from src.canbus_parser import *
+from src.log import log
 import can
 
 TEST: bool = True
@@ -25,7 +26,7 @@ def reader_loop(config: CanPortConfig) -> None:
                 for message in bus:
                     load_message(message)
             except Exception as e:
-                print(e)
+                log(e, 'reader_loop')
             
 def write_on_bus_all_rpm(bus_config: CanPortConfig, params: BoardParams) -> None:
     id: int = 64835
