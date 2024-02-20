@@ -53,8 +53,7 @@ class StateBuffer:
                         state4: int,
                         v: float) -> None:
         
-        
-        for k, node in self.node_states["nodes"]:
+        for k, node in enumerate(self.node_states["nodes"]):
             if node["nodo"] == id:
                 self.node_states["nodes"][k]["state1"] = state1
                 self.node_states["nodes"][k]["state2"] = state2
@@ -84,7 +83,7 @@ class StateBuffer:
                         rpm3: int,
                         rpm4: int) -> None:
         
-        for k, node in self.node_states["nodes"]:
+        for k, node in enumerate(self.node_states["nodes"]):
             if node["nodo"] == id:
                 self.node_states["nodes"][k]["rpm1"] = rpm1
                 self.node_states["nodes"][k]["rpm2"] = rpm2
@@ -113,7 +112,7 @@ class StateBuffer:
                         corr4: int,
                         v: float) -> None:
         
-        for k, node in self.node_states["nodes"]:
+        for k, node in enumerate(self.node_states["nodes"]):
             if node["nodo"] == id:
                 self.node_states["nodes"][k]["corr1"] = corr1
                 self.node_states["nodes"][k]["corr2"] = corr2
@@ -147,11 +146,7 @@ class StateBuffer:
         }
         
     def parse_node(self) -> dict:
-        for k, node in self.node_states["nodes"]:
-            if node["nodo"] == id:
-                return self.node_states["nodes"][k]
-            
-        return {}
+        return self.node_states
 
 class Parser:
     def __init__(self, id: int, data: bytearray) -> None:
