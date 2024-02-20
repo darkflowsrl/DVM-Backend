@@ -35,6 +35,7 @@ def reader_loop(config: CanPortConfig) -> None:
             
 def write_on_bus_all_rpm(bus_config: CanPortConfig, params: BoardParams) -> None:
     id: int = 64835
+    
     msg = can.Message(arbitration_id=id,
                                   data=[params.board_id_bytes[0],
                                         params.board_id_bytes[1],
@@ -50,8 +51,8 @@ def write_on_bus_all_rpm(bus_config: CanPortConfig, params: BoardParams) -> None
                                receive_own_messages=True) as bus:
                 try:
                     bus.send(msg)
-                    log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", write_on_bus_test)
                     print('[ok] Mensaje enviado : write_on_bus_all_rpm')
+                    log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", 'write_on_bus_test')
                 except can.CanError:
                     print('[error] Mensaje no enviado : write_on_bus_all_rpm')
 
