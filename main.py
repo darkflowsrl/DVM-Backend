@@ -6,7 +6,7 @@ from time import sleep
 import socket
 import json
 
-"""
+""" 
 Los siguientes comandos de linux sirven para levantar la interfaz can0
 desde el hardware.
 """

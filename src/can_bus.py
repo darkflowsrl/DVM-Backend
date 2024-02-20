@@ -62,6 +62,7 @@ def write_on_bus_test(bus_config: CanPortConfig, params: BoardTest) -> None:
                                receive_own_messages=True) as bus:
                 try:
                     bus.send(msg)
+                    log(f"Mensaje Enviado: {params.board_id}; {params.board_id_bytes}", write_on_bus_test)
                     print('[ok] Mensaje enviado : write_on_bus_test')
                 except can.CanError:
                     print('[error] Mensaje no enviado : write_on_bus_test')
