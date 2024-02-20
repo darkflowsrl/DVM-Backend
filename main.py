@@ -127,7 +127,7 @@ def send_data_over_node() -> None:
 
                 
                 if command == "testing":
-                    for node in data["nodes"]:
+                    for node in data["nodos"]:
                         write_on_bus_test(bus_config=port_config,
                                         params=BoardTest(node))
                 elif command == "normal":
