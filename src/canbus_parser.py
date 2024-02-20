@@ -244,6 +244,3 @@ class BoardTest:
         self.board_id = board_id
         self.board_id_bytes = self.board_id.to_bytes(2, 'little')
     
-if __name__ == '__main__':
-    m = StateBuffer()
-    

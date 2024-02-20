@@ -138,6 +138,7 @@ def send_data_over_node() -> None:
                                                         data["rpm3"],
                                                         data["rpm4"]))                         
         except Exception as e: 
+            log('Error', 'send_data_over_node')
             print("[error] send_data_over_node")
             print(e)
     

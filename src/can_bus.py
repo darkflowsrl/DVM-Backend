@@ -1,5 +1,10 @@
-from src.canbus_parser import *
-from src.log import log
+if __name__ == '__main__':
+    from canbus_parser import *
+    from log import log
+else:
+    from src.canbus_parser import *
+    from src.log import log
+
 import can
 
 TEST: bool = True
@@ -45,6 +50,7 @@ def write_on_bus_all_rpm(bus_config: CanPortConfig, params: BoardParams) -> None
                                receive_own_messages=True) as bus:
                 try:
                     bus.send(msg)
+                    log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", write_on_bus_test)
                     print('[ok] Mensaje enviado : write_on_bus_all_rpm')
                 except can.CanError:
                     print('[error] Mensaje no enviado : write_on_bus_all_rpm')
@@ -62,19 +68,11 @@ def write_on_bus_test(bus_config: CanPortConfig, params: BoardTest) -> None:
                                receive_own_messages=True) as bus:
                 try:
                     bus.send(msg)
-                    log(f"Mensaje Enviado: {params.board_id}; {params.board_id_bytes}", write_on_bus_test)
+                    log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", write_on_bus_test)
                     print('[ok] Mensaje enviado : write_on_bus_test')
                 except can.CanError:
                     print('[error] Mensaje no enviado : write_on_bus_test')
                     
 if __name__ == '__main__':
-    from threading import Thread
-    from time import sleep
-    
-    task = Thread(target=reader_loop, args=(port_config,))
-    task.start()
-    
-    
-    for i in range(9):
-        write_on_bus_all_rpm(bus_config=port_config, params=BoardParams(1030, 2000, 2000, 2000, 2000))
-        sleep(1)    
+    for i in range(10000):
+        write_on_bus_test(port_config, BoardTest(i))
