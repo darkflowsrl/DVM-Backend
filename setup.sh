@@ -27,9 +27,9 @@ cd /root
 
 git clone https://github.com/darkflowsrl/Darkflow-HMI-Backend.git /root/Darkflow-HMI-Backend/
 
-pip3 install -r /root/Darkflow-HMI-Backend/requirements.txt
-
 cd Darkflow-HMI-Backend
+
+pip3 install -r /root/Darkflow-HMI-Backend/requirements.txt
 
 wget https://github.com/SegarraFacundo/DVM-front/releases/download/v$VERSION/dvm-app-front-$VERSION.AppImage
 chmod +x /root/Darkflow-HMI-Backend/dvm-app-front-$VERSION.AppImage

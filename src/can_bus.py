@@ -17,22 +17,23 @@ buffer = StateBuffer()
     
 def load_message(msg: can.Message) -> None:
     global buffer
-    
+
     message_parser = Parser(msg.arbitration_id, msg.data)
     buffer = message_parser.parse(buffer)
     
 def reader_loop(config: CanPortConfig) -> None:
-    with can.interface.Bus(channel=config.channel,
+        while True:
+            with can.interface.Bus(channel=config.channel,
                             interface=config.interface,
                             bitrate=config.baudrate,
                             receive_own_messages=True) as bus:
-        while True:
-            try:
-                for message in bus:
-                    load_message(message)
-            except Exception as e:
-                log(e, 'reader_loop')
-            
+                try:
+                    for message in bus:
+                        load_message(message)
+                except Exception as e:
+                    print(f'Excepcion: {e}')
+                    log(e, 'reader_loop')
+                
 def write_on_bus_all_rpm(bus_config: CanPortConfig, params: BoardParams) -> None:
     id: int = 64835
     
