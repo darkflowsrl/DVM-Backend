@@ -10,8 +10,8 @@ import json
 Los siguientes comandos de linux sirven para levantar la interfaz can0
 desde el hardware.
 """
-HOST: str = 'localhost'
-PORT: int = 8080
+HOST: str = '192.168.40.2'
+PORT: int = 80
 FAMILY: int = socket.AF_INET
 TYPE: int = socket.SOCK_STREAM
 CONNECTED: bool = False
