@@ -120,27 +120,28 @@ def send_data_over_node() -> None:
     while True:
         try:
             if len(clients) != 0:
-                conn = clients[0]["conn"]
-                data = conn.recv(1024)
-                if not data: break
-                
-                log(f'Nuevo Mensaje: {data}', 'send_data_over_node')
-                
-                data = json.loads(data)
-                command: str = data["command"] 
+                for cli in clients:
+                    conn = clients[0]["conn"]
+                    data = conn.recv(1024)
+                    if not data: break
+                    
+                    log(f'Nuevo Mensaje: {data}', 'send_data_over_node')
+                    
+                    data = json.loads(data)
+                    command: str = data["command"] 
 
-                
-                if command == "testing":
-                    for node in data["nodos"]:
-                        write_on_bus_test(bus_config=port_config,
-                                        params=BoardTest(node))
-                elif command == "normal":
-                    write_on_bus_all_rpm(bus_config=port_config,
-                                            params=BoardParams(data["nodo"],
-                                                        data["rpm1"],
-                                                        data["rpm2"],
-                                                        data["rpm3"],
-                                                        data["rpm4"]))                         
+                    
+                    if command == "testing":
+                        for node in data["nodos"]:
+                            write_on_bus_test(bus_config=port_config,
+                                            params=BoardTest(node))
+                    elif command == "normal":
+                        write_on_bus_all_rpm(bus_config=port_config,
+                                                params=BoardParams(data["nodo"],
+                                                            data["rpm1"],
+                                                            data["rpm2"],
+                                                            data["rpm3"],
+                                                            data["rpm4"]))                         
         except Exception as e: 
             log('Error', 'send_data_over_node')
             print("[error] send_data_over_node")

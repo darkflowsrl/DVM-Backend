@@ -65,7 +65,7 @@ def write_on_bus_test(bus_config: CanPortConfig, params: BoardTest) -> None:
                                   data=[params.board_id_bytes[0],
                                         params.board_id_bytes[1], 0, 0, 0, 0, 0, 0],
                                   is_extended_id=True)
-    
+
     with can.interface.Bus(channel=bus_config.channel,
                                interface=bus_config.interface,
                                bitrate=bus_config.baudrate,

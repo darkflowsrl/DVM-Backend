@@ -1,5 +1,3 @@
-from copy import deepcopy
-
 """
 (Formato Python)
 Guardado de los estados de los motores por cada Nodo:
