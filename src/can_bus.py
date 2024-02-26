@@ -18,7 +18,7 @@ buffer = StateBuffer()
 def load_message(msg: can.Message) -> None:
     global buffer
 
-    print(f'MSG -> {msg}')
+    if msg.arbitration_id in [130313, 130306, 65269, 1000, 64070, 64837, 64838]: print(f'MSG -> {msg}')
     
     message_parser = Parser(msg.arbitration_id, msg.data)
     buffer = message_parser.parse(buffer)

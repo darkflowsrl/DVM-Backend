@@ -146,7 +146,7 @@ class StateBuffer:
         
     def parse_node(self) -> dict:
         return self.node_states
-
+[130313, 130306, 65269, 1000, 64070, 64837]
 class Parser:
     def __init__(self, id: int, data: bytearray) -> None:
         self.id = id
@@ -203,7 +203,7 @@ class Parser:
                                             rpm3,
                                             rpm4)
         
-        elif self.id == 64837:
+        elif self.id == 64838:
             id_board: int = int.from_bytes(self.data[0:2], byteorder='little')
             corr1: int = int.from_bytes(self.data[2], byteorder='little')
             corr2: int = int.from_bytes(self.data[3], byteorder='little')
