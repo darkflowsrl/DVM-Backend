@@ -57,21 +57,25 @@ Protocolo de datos meteorológicos:
 
 Protocolo de estado general del nodo:
 {
-    command : "estadoGeneralNodo",
-    nodo : 1030,
-    state1 : 3.1,
-    state2 : 3.2,
-    state3 : 3.3,
-    state4 : 6.2,
-    corr1 : 2000,
-    corr2 : 2500,
-    corr3 : 2000,
-    corr4 : 500,
-    rpm1 : 3.1,
-    rpm2 : 3.2,
-    rpm3 : 3.3,
-    rpm4 : 6.2,
-    voltaje : 12.8
+    command : "estadoGeneralNodos",
+    nodos: [
+        {
+            nodo : 1030,
+            state1 : 3.1,
+            state2 : 3.2,
+            state3 : 3.3,
+            state4 : 6.2,
+            corr1 : 2000,
+            corr2 : 2500,
+            corr3 : 2000,
+            corr4 : 500,
+            rpm1 : 3.1,
+            rpm2 : 3.2,
+            rpm3 : 3.3,
+            rpm4 : 6.2,
+            voltaje : 12.8
+        }
+    ]
 }
 """
 

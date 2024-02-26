@@ -4,7 +4,7 @@ from copy import deepcopy
 (Formato Python)
 Guardado de los estados de los motores por cada Nodo:
 [
-    {
+    "nodos" : {
         "nodo" : 1030,
         "state1" : 2000,
         "state2" : 2500,
@@ -43,7 +43,8 @@ class StateBuffer:
         self.wind_speed: int = wind_speed
         self.temp: int = temp
         self.pr: int = pr
-        self.node_states: dict = {"nodes" : []}
+        self.node_states: dict = {"command" : "estadoGeneralNodos",
+                                  "nodos" : []}
         
     def put_node_states_test(self,
                         id: int,
@@ -55,11 +56,11 @@ class StateBuffer:
         
         for k, node in enumerate(self.node_states["nodes"]):
             if node["nodo"] == id:
-                self.node_states["nodes"][k]["state1"] = state1
-                self.node_states["nodes"][k]["state2"] = state2
-                self.node_states["nodes"][k]["state3"] = state3
-                self.node_states["nodes"][k]["state4"] = state4
-                self.node_states["nodes"][k]["voltaje"] = v
+                self.node_states["nodos"][k]["state1"] = state1
+                self.node_states["nodos"][k]["state2"] = state2
+                self.node_states["nodos"][k]["state3"] = state3
+                self.node_states["nodos"][k]["state4"] = state4
+                self.node_states["nodos"][k]["voltaje"] = v
                 
                 return
         
@@ -85,10 +86,10 @@ class StateBuffer:
         
         for k, node in enumerate(self.node_states["nodes"]):
             if node["nodo"] == id:
-                self.node_states["nodes"][k]["rpm1"] = rpm1
-                self.node_states["nodes"][k]["rpm2"] = rpm2
-                self.node_states["nodes"][k]["rpm3"] = rpm3
-                self.node_states["nodes"][k]["rpm4"] = rpm4
+                self.node_states["nodos"][k]["rpm1"] = rpm1
+                self.node_states["nodos"][k]["rpm2"] = rpm2
+                self.node_states["nodos"][k]["rpm3"] = rpm3
+                self.node_states["nodos"][k]["rpm4"] = rpm4
 
                 return
         
@@ -114,11 +115,11 @@ class StateBuffer:
         
         for k, node in enumerate(self.node_states["nodes"]):
             if node["nodo"] == id:
-                self.node_states["nodes"][k]["corr1"] = corr1
-                self.node_states["nodes"][k]["corr2"] = corr2
-                self.node_states["nodes"][k]["corr3"] = corr3
-                self.node_states["nodes"][k]["corr4"] = corr4
-                self.node_states["nodes"][k]["voltaje"] = v
+                self.node_states["nodos"][k]["corr1"] = corr1
+                self.node_states["nodos"][k]["corr2"] = corr2
+                self.node_states["nodos"][k]["corr3"] = corr3
+                self.node_states["nodos"][k]["corr4"] = corr4
+                self.node_states["nodos"][k]["voltaje"] = v
                 
                 return
         
@@ -218,7 +219,6 @@ class Parser:
                                             corr3,
                                             corr4,
                                             voltaje)
-            
         
         return deepcopy(mod_buffer)
     
