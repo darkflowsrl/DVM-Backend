@@ -62,7 +62,7 @@ class StateBuffer:
                 
                 return
         
-        self.node_states["nodes"].append({
+        self.node_states["nodes"].append(
             {
                 "nodo" : id,
                 "state1" : state1,
@@ -71,7 +71,7 @@ class StateBuffer:
                 "state4" : state4,
                 "voltaje" : v
             }
-        })
+        )
         
         return
         
@@ -174,6 +174,7 @@ class Parser:
             mod_buffer.pr = pr
         
         elif self.id == 64071:
+            print('Reading 64071 data')
             id_board: int = int.from_bytes(self.data[0:2], byteorder='little')
             state1: int = int.from_bytes(self.data[2], byteorder='little')
             state2: int = int.from_bytes(self.data[3], byteorder='little')
