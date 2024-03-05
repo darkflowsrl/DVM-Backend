@@ -155,7 +155,7 @@ def send_data_over_node() -> None:
                                                             data["rpm4"]))     
                         def get_rmp() -> None:
                             time.sleep(3)
-                            write_on_bus_take_status(bus_config=port_config,
+                            write_on_bus_take_rpm(bus_config=port_config,
                                             params=BoardTest(data["nodo"]))
 
                         simple_thread = Thread(target=get_rmp)

@@ -78,7 +78,7 @@ def write_on_bus_test(bus_config: CanPortConfig, params: BoardTest) -> None:
                     print('[error] Mensaje no enviado : write_on_bus_test')
 
 def write_on_bus_take_status(bus_config: CanPortConfig, params: BoardTest) -> None:
-    id: int = 64836
+    id: int = 64070
     msg = can.Message(arbitration_id=id,
                                   data=[params.board_id_bytes[0],
                                         params.board_id_bytes[1], 0, 0, 0, 0, 0, 0],
