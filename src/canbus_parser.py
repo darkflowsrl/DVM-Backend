@@ -174,7 +174,6 @@ class Parser:
             mod_buffer.pr = pr
         
         elif self.id == 64071:
-            print('Reading 64071 data')
             id_board: int = int.from_bytes(self.data[0:2], byteorder='little')
             state1: int = self.data[2]
             state2: int = self.data[3]
@@ -192,10 +191,10 @@ class Parser:
         
         elif self.id == 64837:
             id_board: int = int.from_bytes(self.data[0:2], byteorder='little')
-            rpm1: int = int.from_bytes(self.data[2], byteorder='little') * 50
-            rpm2: int = int.from_bytes(self.data[3], byteorder='little') * 50
-            rpm3: int = int.from_bytes(self.data[4], byteorder='little') * 50
-            rpm4: int = int.from_bytes(self.data[5], byteorder='little') * 50
+            rpm1: int = self.data[2] * 50
+            rpm2: int = self.data[3] * 50
+            rpm3: int = self.data[4] * 50
+            rpm4: int = self.data[5] * 50
             
             mod_buffer.put_node_states_rpm(id_board,
                                             rpm1,
@@ -205,12 +204,12 @@ class Parser:
         
         elif self.id == 64838:
             id_board: int = int.from_bytes(self.data[0:2], byteorder='little')
-            corr1: int = int.from_bytes(self.data[2], byteorder='little')
-            corr2: int = int.from_bytes(self.data[3], byteorder='little')
-            corr3: int = int.from_bytes(self.data[4], byteorder='little')
-            corr4: int = int.from_bytes(self.data[5], byteorder='little')
+            corr1: int = self.data[2]
+            corr2: int = self.data[3]
+            corr3: int = self.data[4]
+            corr4: int = self.data[5]
             
-            voltaje: int = int.from_bytes(self.data[6], byteorder='little') * 0.1
+            voltaje: int = self.data[6] * 0.1
             
             mod_buffer.put_node_states_currency_voltage(id_board,
                                             corr1,
