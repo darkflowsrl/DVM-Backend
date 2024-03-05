@@ -176,12 +176,12 @@ class Parser:
         elif self.id == 64071:
             print('Reading 64071 data')
             id_board: int = int.from_bytes(self.data[0:2], byteorder='little')
-            state1: int = int.from_bytes(self.data[2], byteorder='little')
-            state2: int = int.from_bytes(self.data[3], byteorder='little')
-            state3: int = int.from_bytes(self.data[4], byteorder='little')
-            state4: int = int.from_bytes(self.data[5], byteorder='little')
+            state1: int = self.data[2]
+            state2: int = self.data[3]
+            state3: int = self.data[4]
+            state4: int = self.data[5]
             
-            voltaje: int = int.from_bytes(self.data[6], byteorder='little') * 0.1
+            voltaje: int = self.data[6] * 0.1
             
             mod_buffer.put_node_states_test(id_board,
                                             state1,
