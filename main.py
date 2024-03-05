@@ -1,10 +1,11 @@
-from src.can_bus import reader_loop, write_on_bus_all_rpm, write_on_bus_test, buffer, port_config
+from src.can_bus import reader_loop, write_on_bus_all_rpm, write_on_bus_test, write_on_bus_take_status, buffer, port_config
 from src.canbus_parser import *
 from src.log import log
 from threading import Thread
 from time import sleep
 import socket
 import json
+import time
 
 """ 
 Los siguientes comandos de linux sirven para levantar la interfaz can0
@@ -135,6 +136,13 @@ def send_data_over_node() -> None:
                         for node in data["nodos"]:
                             write_on_bus_test(bus_config=port_config,
                                             params=BoardTest(node))
+                        time.sleep(6)
+                        
+                        for node in data["nodos"]:
+                            write_on_bus_take_status(bus_config=port_config,
+                                            params=BoardTest(node))
+                                
+                        
                     elif command == "normal":
                         write_on_bus_all_rpm(bus_config=port_config,
                                                 params=BoardParams(data["nodo"],

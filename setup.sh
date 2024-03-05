@@ -17,11 +17,14 @@ VERSION="1.0.7"
 
 #echo "startx /usr/bin/chromium --no-sandbox --noerrdialogs --disable-infobars --start-fullscreen --window-size=1270,790  --kiosk https://www.google.com -- -nocursor -dpms -s off -s noblank" >> ~/.bashrc
 
-echo "sleep 10" >> ~/.bashrc
+echo "sleep 5" >> ~/.bashrc
+echo "ip link set can0 up type can bitrate 250000" >> ~/.bashrc
+echo "ip link set can0 up type can bitrate 250000" >> ~/.bashrc
+echo "ip link set can0 up type can bitrate 250000" >> ~/.bashrc
+echo "ip link set can0 up type can bitrate 250000" >> ~/.bashrc
+echo "ip link set can0 up type can bitrate 250000" >> ~/.bashrc
 echo "nohup python3 /root/Darkflow-HMI-Backend/main.py > /dev/null 2>1&" >> ~/.bashrc
 echo "startx /root/Darkflow-HMI-Backend/dvm-app-front-$VERSION.AppImage --no-sandbox -- -nocursor" >> ~/.bashrc
-echo "ip link set can0 up type can bitrate 250000" >> ~/.bashrc
-echo "ip link set can0 up type can bitrate 250000" >> ~/.bashrc
 
 cd /root
 

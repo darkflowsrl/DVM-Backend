@@ -146,7 +146,7 @@ class StateBuffer:
         
     def parse_node(self) -> dict:
         return self.node_states
-[130313, 130306, 65269, 1000, 64070, 64837]
+
 class Parser:
     def __init__(self, id: int, data: bytearray) -> None:
         self.id = id
@@ -174,7 +174,7 @@ class Parser:
             pr: float = round(self.data_int * 0.01 - 273.15, 2)
             mod_buffer.pr = pr
         
-        elif self.id == 64070:
+        elif self.id == 64071:
             id_board: int = int.from_bytes(self.data[0:2], byteorder='little')
             state1: int = int.from_bytes(self.data[2], byteorder='little')
             state2: int = int.from_bytes(self.data[3], byteorder='little')
