@@ -135,7 +135,7 @@ def send_data_over_node() -> None:
                     if command == "testing":
                         for node in data["nodos"]:
                             write_on_bus_test(bus_config=port_config,
-                                            params=BoardTest(node))
+                                            params=BoardParams(node))
                         
                         def get_states() -> None:
                             time.sleep(6)
