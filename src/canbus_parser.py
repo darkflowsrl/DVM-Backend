@@ -52,7 +52,7 @@ class StateBuffer:
                         state4: int,
                         v: float) -> None:
         
-        for k, node in enumerate(self.node_states["nodes"]):
+        for k, node in enumerate(self.node_states["nodos"]):
             if node["nodo"] == id:
                 self.node_states["nodos"][k]["state1"] = state1
                 self.node_states["nodos"][k]["state2"] = state2
@@ -62,7 +62,7 @@ class StateBuffer:
                 
                 return
         
-        self.node_states["nodes"].append(
+        self.node_states["nodos"].append(
             {
                 "nodo" : id,
                 "state1" : state1,
@@ -82,7 +82,7 @@ class StateBuffer:
                         rpm3: int,
                         rpm4: int) -> None:
         
-        for k, node in enumerate(self.node_states["nodes"]):
+        for k, node in enumerate(self.node_states["nodos"]):
             if node["nodo"] == id:
                 self.node_states["nodos"][k]["rpm1"] = rpm1
                 self.node_states["nodos"][k]["rpm2"] = rpm2
@@ -91,7 +91,7 @@ class StateBuffer:
 
                 return
         
-        self.node_states["nodes"].append({
+        self.node_states["nodos"].append({
             {
                 "nodo" : id,
                 "rpm1" : rpm1,
@@ -111,7 +111,7 @@ class StateBuffer:
                         corr4: int,
                         v: float) -> None:
         
-        for k, node in enumerate(self.node_states["nodes"]):
+        for k, node in enumerate(self.node_states["nodos"]):
             if node["nodo"] == id:
                 self.node_states["nodos"][k]["corr1"] = corr1
                 self.node_states["nodos"][k]["corr2"] = corr2
@@ -121,7 +121,7 @@ class StateBuffer:
                 
                 return
         
-        self.node_states["nodes"].append({
+        self.node_states["nodos"].append({
             {
                 "nodo" : id,
                 "corr1" : corr1,
