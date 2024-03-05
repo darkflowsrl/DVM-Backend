@@ -6,7 +6,7 @@ apt install -y python3-pip --fix-missing
 apt install -y htop
 apt install -y nodm
 
-VERSION="1.0.7"
+VERSION="1.0.9"
 
 # /etc/defaults/nodm
 # NODM_ENABLED=true
