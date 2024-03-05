@@ -156,7 +156,6 @@ class Parser:
     def parse(self, mod_buffer: StateBuffer) -> StateBuffer:
         if self.id == 130313:
             humidity: float = round(self.data_int * 0.004, 2)
-            print(f'Humidity: {humidity}')
             mod_buffer.hum = humidity
         
         elif self.id == 130306:
