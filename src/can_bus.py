@@ -18,7 +18,7 @@ buffer = StateBuffer()
 def load_message(msg: can.Message) -> None:
     global buffer
 
-    if msg.arbitration_id in [130313, 130306, 65269, 1000, 64070, 64837, 64838]: print(f'MSG -> {msg}')
+    if msg.arbitration_id in [130313, 130306, 65269, 1000, 64070, 64070, 64837, 64838]: print(f'MSG -> {msg}')
     
     message_parser = Parser(msg.arbitration_id, msg.data)
     buffer = message_parser.parse(buffer)
@@ -72,7 +72,7 @@ def write_on_bus_test(bus_config: CanPortConfig, params: BoardTest) -> None:
                                receive_own_messages=True) as bus:
                 try:
                     bus.send(msg)
-                    log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", write_on_bus_test)
+                    log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", 'write_on_bus_test')
                     print('[ok] Mensaje enviado : write_on_bus_test')
                 except can.CanError:
                     print('[error] Mensaje no enviado : write_on_bus_test')
@@ -90,10 +90,10 @@ def write_on_bus_take_status(bus_config: CanPortConfig, params: BoardTest) -> No
                                receive_own_messages=True) as bus:
                 try:
                     bus.send(msg)
-                    log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", write_on_bus_test)
-                    print('[ok] Mensaje enviado : write_on_bus_test')
+                    log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", 'write_on_bus_take_status')
+                    print('[ok] Mensaje enviado : write_on_bus_take_status')
                 except can.CanError:
-                    print('[error] Mensaje no enviado : write_on_bus_test')
+                    print('[error] Mensaje no enviado : write_on_bus_take_status')
                              
                     
 if __name__ == '__main__':
