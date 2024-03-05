@@ -94,6 +94,24 @@ def write_on_bus_take_status(bus_config: CanPortConfig, params: BoardTest) -> No
                     print('[ok] Mensaje enviado : write_on_bus_take_status')
                 except can.CanError:
                     print('[error] Mensaje no enviado : write_on_bus_take_status')
+
+def write_on_bus_take_rpm(bus_config: CanPortConfig, params: BoardTest) -> None:
+    id: int = 64836
+    msg = can.Message(arbitration_id=id,
+                                  data=[params.board_id_bytes[0],
+                                        params.board_id_bytes[1], 0, 0, 0, 0, 0, 0],
+                                  is_extended_id=True)
+
+    with can.interface.Bus(channel=bus_config.channel,
+                               interface=bus_config.interface,
+                               bitrate=bus_config.baudrate,
+                               receive_own_messages=True) as bus:
+                try:
+                    bus.send(msg)
+                    log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", 'write_on_bus_take_rpm')
+                    print('[ok] Mensaje enviado : write_on_bus_take_rpm')
+                except can.CanError:
+                    print('[error] Mensaje no enviado : write_on_bus_take_rpm')
                              
                     
 if __name__ == '__main__':

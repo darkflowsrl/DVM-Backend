@@ -52,13 +52,13 @@ class StateBuffer:
                         state4: int,
                         v: float) -> None:
         
-        for k, node in enumerate(self.node_states["nodos"]):
+        for node in self.node_states["nodos"]:
             if node["nodo"] == id:
-                self.node_states["nodos"][k]["state1"] = state1
-                self.node_states["nodos"][k]["state2"] = state2
-                self.node_states["nodos"][k]["state3"] = state3
-                self.node_states["nodos"][k]["state4"] = state4
-                self.node_states["nodos"][k]["voltaje"] = v
+                node["state1"] = state1
+                node["state2"] = state2
+                node["state3"] = state3
+                node["state4"] = state4
+                node["voltaje"] = v
                 
                 return
         
@@ -82,12 +82,12 @@ class StateBuffer:
                         rpm3: int,
                         rpm4: int) -> None:
         
-        for k, node in enumerate(self.node_states["nodos"]):
+        for node in self.node_states["nodos"]:
             if node["nodo"] == id:
-                self.node_states["nodos"][k]["rpm1"] = rpm1
-                self.node_states["nodos"][k]["rpm2"] = rpm2
-                self.node_states["nodos"][k]["rpm3"] = rpm3
-                self.node_states["nodos"][k]["rpm4"] = rpm4
+                node["rpm1"] = rpm1
+                node["rpm2"] = rpm2
+                node["rpm3"] = rpm3
+                node["rpm4"] = rpm4
 
                 return
         
@@ -111,13 +111,13 @@ class StateBuffer:
                         corr4: int,
                         v: float) -> None:
         
-        for k, node in enumerate(self.node_states["nodos"]):
+        for node in self.node_states["nodos"]:
             if node["nodo"] == id:
-                self.node_states["nodos"][k]["corr1"] = corr1
-                self.node_states["nodos"][k]["corr2"] = corr2
-                self.node_states["nodos"][k]["corr3"] = corr3
-                self.node_states["nodos"][k]["corr4"] = corr4
-                self.node_states["nodos"][k]["voltaje"] = v
+                node["corr1"] = corr1
+                node["corr2"] = corr2
+                node["corr3"] = corr3
+                node["corr4"] = corr4
+                node["voltaje"] = v
                 
                 return
         
