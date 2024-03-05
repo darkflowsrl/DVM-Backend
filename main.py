@@ -137,13 +137,13 @@ def send_data_over_node() -> None:
                             write_on_bus_test(bus_config=port_config,
                                             params=BoardTest(node))
                         
-                        def get_states() -> None:
+                        def get_status() -> None:
                             time.sleep(6)
                             for node in data["nodos"]:
                                 write_on_bus_take_status(bus_config=port_config,
                                                 params=BoardTest(node))
                                 
-                        simple_thread = Thread(target=get_states)
+                        simple_thread = Thread(target=get_status)
                         simple_thread.start()
                         
                     elif command == "normal":
