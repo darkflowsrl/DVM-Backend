@@ -91,15 +91,14 @@ class StateBuffer:
 
                 return
         
-        self.node_states["nodos"].append({
+        self.node_states["nodos"].append(
             {
                 "nodo" : id,
                 "rpm1" : rpm1,
                 "rpm2" : rpm2,
                 "rpm3" : rpm3,
                 "rpm4" : rpm4,
-            }
-        })
+            })
         
         return
     
@@ -121,7 +120,7 @@ class StateBuffer:
                 
                 return
         
-        self.node_states["nodos"].append({
+        self.node_states["nodos"].append(
             {
                 "nodo" : id,
                 "corr1" : corr1,
@@ -129,8 +128,7 @@ class StateBuffer:
                 "corr3" : corr3,
                 "corr4" : corr4,
                 "voltaje" : v
-            }
-        })
+            })
         
         return
     
