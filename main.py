@@ -85,10 +85,10 @@ class Node:
     id: int
 
 def get_rmp() -> None:
-    global clients
+    global nodes
     
     while True:
-        clients = list(set(clients))
+        nodes = list(set(nodes))
         time.sleep(1)
         try:
             for i, node in enumerate(nodes):
