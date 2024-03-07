@@ -80,10 +80,6 @@ Protocolo de estado general del nodo:
 }
 """
 
-class Node:
-    started: bool
-    id: int
-
 def get_rmp() -> None:
     global nodes
     
@@ -92,9 +88,8 @@ def get_rmp() -> None:
         time.sleep(1)
         try:
             for i, node in enumerate(nodes):
-                if node.started:
-                    write_on_bus_take_rpm(bus_config=port_config,
-                                    params=BoardTest(int(node.id)))
+                write_on_bus_take_rpm(bus_config=port_config,
+                                params=BoardTest(int(node)))
         except Exception as e:
             print(f'Exception at: get_rpm -> {str(e)}')
                             
@@ -175,9 +170,7 @@ def send_data_over_node(client) -> None:
                                                     data["rpm2"],
                                                     data["rpm3"],
                                                     data["rpm4"]))     
-                new_node = Node()
-                new_node.started = True
-                new_node.id = data["nodo"]
+                new_node = data["nodo"]
                 nodes.append(new_node)
                 
         except Exception as e: 
