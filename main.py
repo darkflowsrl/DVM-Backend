@@ -105,7 +105,7 @@ def _listen_for_incomming_clients() -> None:
             conn, addr = sock.accept()
             log(f'Nuevo cliente conectado: {addr}', '_listen_for_incomming_clients')
             client: dict = {'conn': conn, 'addr': addr}
-            clients.append(client)
+            clients = clients + client
             task_write_into_node = Thread(target=send_data_over_node,
                                           args=(client,),
                                           daemon=True)
