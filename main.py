@@ -11,8 +11,8 @@ import time
 Los siguientes comandos de linux sirven para levantar la interfaz can0
 desde el hardware.
 """
-HOST: str = '192.168.40.4'
-PORT: int = 80
+HOST: str = 'localhost'
+PORT: int = 8080    
 FAMILY: int = socket.AF_INET
 TYPE: int = socket.SOCK_STREAM
 CONNECTED: bool = False
@@ -89,7 +89,12 @@ def _listen_for_incomming_clients() -> None:
         try:
             conn, addr = sock.accept()
             log(f'Nuevo cliente conectado: {addr}', '_listen_for_incomming_clients')
-            clients.append({'conn': conn, 'addr': addr})
+            client: dict = {'conn': conn, 'addr': addr}
+            clients.append(client)
+            task_write_into_node = Thread(target=send_data_over_node,
+                                          args=(client,),
+                                          daemon=True)
+            task_write_into_node.start()
         except socket.timeout:
             pass
     
@@ -115,52 +120,49 @@ def send_data_over_socket() -> None:
                 except OSError:
                     pass
             
-def send_data_over_node() -> None:
-    global clients
-    
+def send_data_over_node(client) -> None:
     while True:
         try:
-            if len(clients) != 0:
-                for cli in clients:
-                    conn = clients[0]["conn"]
-                    data = conn.recv(1024)
-                    if not data: break
-                    
-                    log(f'Nuevo Mensaje: {data}', 'send_data_over_node')
-                    
-                    data = json.loads(data)
-                    command: str = data["command"] 
+            conn = client["conn"]
+            data = conn.recv(1024)
+            if not data: break
+            
+            log(f'Nuevo Mensaje: {data}', 'send_data_over_node')
+            
+            data = json.loads(data)
+            command: str = data["command"] 
 
-                    
-                    if command == "testing":
+            
+            if command == "testing":
+                for node in data["nodos"]:
+                    write_on_bus_test(bus_config=port_config,
+                                    params=BoardTest(node))
+                
+                def get_status() -> None:
+                    while True:
+                        time.sleep(6)
                         for node in data["nodos"]:
-                            write_on_bus_test(bus_config=port_config,
+                            write_on_bus_take_status(bus_config=port_config,
                                             params=BoardTest(node))
-                        
-                        def get_status() -> None:
-                            time.sleep(6)
-                            for node in data["nodos"]:
-                                write_on_bus_take_status(bus_config=port_config,
-                                                params=BoardTest(node))
-                                
-                        simple_thread = Thread(target=get_status)
-                        simple_thread.start()
-                        
-                    elif command == "normal":
-                        write_on_bus_all_rpm(bus_config=port_config,
-                                                params=BoardParams(data["nodo"],
-                                                            data["rpm1"],
-                                                            data["rpm2"],
-                                                            data["rpm3"],
-                                                            data["rpm4"]))     
-                        def get_rmp() -> None:
-                            while True:
-                                time.sleep(5)
-                                write_on_bus_take_rpm(bus_config=port_config,
-                                                params=BoardTest(data["nodo"]))
+                            
+                simple_thread = Thread(target=get_status)
+                simple_thread.start()
+                
+            elif command == "normal":
+                write_on_bus_all_rpm(bus_config=port_config,
+                                        params=BoardParams(data["nodo"],
+                                                    data["rpm1"],
+                                                    data["rpm2"],
+                                                    data["rpm3"],
+                                                    data["rpm4"]))     
+                def get_rmp() -> None:
+                    while True:
+                        time.sleep(5)
+                        write_on_bus_take_rpm(bus_config=port_config,
+                                        params=BoardTest(data["nodo"]))
 
-                        simple_thread = Thread(target=get_rmp, daemon=True)
-                        simple_thread.start()
+                simple_thread = Thread(target=get_rmp, daemon=True)
+                simple_thread.start()
                                             
         except Exception as e: 
             log('Error', 'send_data_over_node')
@@ -172,14 +174,14 @@ if __name__ == '__main__':
         task_wait_for_client = Thread(target=_listen_for_incomming_clients)
         task_read_node = Thread(target=reader_loop, args=(port_config,))
         task_write_into_front = Thread(target=send_data_over_socket)
-        task_write_into_node = Thread(target=send_data_over_node)
+        #task_write_into_node = Thread(target=send_data_over_node)
 
         task_wait_for_client.start()
         task_read_node.start()
         task_write_into_front.start()
-        task_write_into_node.start()
+        #task_write_into_node.start()
         
         task_wait_for_client.join()
         task_read_node.join()
         task_write_into_front.join()
-        task_write_into_node.join()
+        #task_write_into_node.join()
