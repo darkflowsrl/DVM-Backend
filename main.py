@@ -19,8 +19,8 @@ TYPE: int = socket.SOCK_STREAM
 sock = socket.socket(FAMILY, TYPE)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind((HOST, PORT))
-clients: list = []
-nodes: set = ()
+clients: set = ()
+nodes: list = []
 
 log("Se inicio el script satisfactoriamente.", 'main')
 
@@ -97,6 +97,8 @@ def get_rmp() -> None:
                             
 def _listen_for_incomming_clients() -> None:
     global sock
+    global clients
+    
     sock.listen(1)
     sock.settimeout(10)  # Establecer un tiempo de espera de 10 segundos
     
