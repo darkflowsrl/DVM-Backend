@@ -19,7 +19,7 @@ TYPE: int = socket.SOCK_STREAM
 sock = socket.socket(FAMILY, TYPE)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind((HOST, PORT))
-clients: set = ()
+clients: list = []
 nodes: list = []
 
 log("Se inicio el script satisfactoriamente.", 'main')
@@ -86,6 +86,7 @@ class Node:
 
 def get_rmp() -> None:
     while True:
+        clients = list(set(clients))
         time.sleep(1)
         try:
             for i, node in enumerate(nodes):
@@ -107,7 +108,7 @@ def _listen_for_incomming_clients() -> None:
             conn, addr = sock.accept()
             log(f'Nuevo cliente conectado: {addr}', '_listen_for_incomming_clients')
             client: dict = {'conn': conn, 'addr': addr}
-            clients = clients + client
+            clients.append(client)
             task_write_into_node = Thread(target=send_data_over_node,
                                           args=(client,),
                                           daemon=True)
