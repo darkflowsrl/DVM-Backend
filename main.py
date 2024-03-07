@@ -15,12 +15,12 @@ HOST: str = 'localhost'
 PORT: int = 8080    
 FAMILY: int = socket.AF_INET
 TYPE: int = socket.SOCK_STREAM
-CONNECTED: bool = False
 
 sock = socket.socket(FAMILY, TYPE)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind((HOST, PORT))
 clients: list = []
+nodes: list = []
 
 log("Se inicio el script satisfactoriamente.", 'main')
 
@@ -80,6 +80,20 @@ Protocolo de estado general del nodo:
 }
 """
 
+class Node:
+    started: bool
+    id: int
+
+def get_rmp() -> None:
+    while True:
+        try:
+            for node in nodes:
+                if node.started:
+                    write_on_bus_take_rpm(bus_config=port_config,
+                                    params=BoardTest(node.id))
+        except Exception as e:
+            print(f'Exception at: get_rpm -> {str(e)}')
+                            
 def _listen_for_incomming_clients() -> None:
     global sock
     sock.listen(1)
@@ -125,7 +139,7 @@ def send_data_over_node(client) -> None:
         try:
             conn = client["conn"]
             data = conn.recv(1024)
-                        
+
             log(f'Nuevo Mensaje: {data}', 'send_data_over_node')
             
             data = json.loads(data)
@@ -154,17 +168,10 @@ def send_data_over_node(client) -> None:
                                                     data["rpm2"],
                                                     data["rpm3"],
                                                     data["rpm4"]))     
-                def get_rmp() -> None:
-                    while True:
-                        try:
-                            time.sleep(5)
-                            write_on_bus_take_rpm(bus_config=port_config,
-                                            params=BoardTest(data["nodo"]))
-                        except Exception as e:
-                            print(f'Exception at: get_rpm -> {str(e)}')
-                simple_thread = Thread(target=get_rmp, daemon=True)
-                simple_thread.start()
-                                            
+                new_node = Node()
+                new_node.started = True
+                new_node.id = data["nodo"]
+                
         except Exception as e: 
             log('Error', 'send_data_over_node')
             print("[error] send_data_over_node")
@@ -175,14 +182,14 @@ if __name__ == '__main__':
         task_wait_for_client = Thread(target=_listen_for_incomming_clients)
         task_read_node = Thread(target=reader_loop, args=(port_config,))
         task_write_into_front = Thread(target=send_data_over_socket)
-        #task_write_into_node = Thread(target=send_data_over_node)
+        task_get_rpm = Thread(target=get_rmp)
 
         task_wait_for_client.start()
         task_read_node.start()
         task_write_into_front.start()
-        #task_write_into_node.start()
+        task_get_rpm.start()
         
         task_wait_for_client.join()
         task_read_node.join()
         task_write_into_front.join()
-        #task_write_into_node.join()
+        #task_get_rpm.join()
