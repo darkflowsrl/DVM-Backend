@@ -85,6 +85,8 @@ class Node:
     id: int
 
 def get_rmp() -> None:
+    global clients
+    
     while True:
         clients = list(set(clients))
         time.sleep(1)
