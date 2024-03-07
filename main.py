@@ -125,8 +125,7 @@ def send_data_over_node(client) -> None:
         try:
             conn = client["conn"]
             data = conn.recv(1024)
-            if not data: break
-            
+                        
             log(f'Nuevo Mensaje: {data}', 'send_data_over_node')
             
             data = json.loads(data)
@@ -157,10 +156,12 @@ def send_data_over_node(client) -> None:
                                                     data["rpm4"]))     
                 def get_rmp() -> None:
                     while True:
-                        time.sleep(5)
-                        write_on_bus_take_rpm(bus_config=port_config,
-                                        params=BoardTest(data["nodo"]))
-
+                        try:
+                            time.sleep(5)
+                            write_on_bus_take_rpm(bus_config=port_config,
+                                            params=BoardTest(data["nodo"]))
+                        except Exception as e:
+                            print(f'Exception at: get_rpm -> {str(e)}')
                 simple_thread = Thread(target=get_rmp, daemon=True)
                 simple_thread.start()
                                             
