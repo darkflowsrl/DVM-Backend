@@ -87,7 +87,7 @@ class Node:
 def get_rmp() -> None:
     while True:
         try:
-            for node in nodes:
+            for i, node in enumerate(nodes):
                 if node.started:
                     write_on_bus_take_rpm(bus_config=port_config,
                                     params=BoardTest(node.id))
