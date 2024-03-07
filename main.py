@@ -86,11 +86,12 @@ class Node:
 
 def get_rmp() -> None:
     while True:
+        time.sleep(1)
         try:
             for i, node in enumerate(nodes):
                 if node.started:
                     write_on_bus_take_rpm(bus_config=port_config,
-                                    params=BoardTest(node.id))
+                                    params=BoardTest(int(node.id)))
         except Exception as e:
             print(f'Exception at: get_rpm -> {str(e)}')
                             
