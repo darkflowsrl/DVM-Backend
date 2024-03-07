@@ -154,11 +154,12 @@ def send_data_over_node() -> None:
                                                             data["rpm3"],
                                                             data["rpm4"]))     
                         def get_rmp() -> None:
-                            time.sleep(3)
-                            write_on_bus_take_rpm(bus_config=port_config,
-                                            params=BoardTest(data["nodo"]))
+                            while True:
+                                time.sleep(5)
+                                write_on_bus_take_rpm(bus_config=port_config,
+                                                params=BoardTest(data["nodo"]))
 
-                        simple_thread = Thread(target=get_rmp)
+                        simple_thread = Thread(target=get_rmp, daemon=True)
                         simple_thread.start()
                                             
         except Exception as e: 
