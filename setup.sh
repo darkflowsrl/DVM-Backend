@@ -24,18 +24,19 @@ echo "ip link set can0 up type can bitrate 250000" >> ~/.bashrc
 echo "ip link set can0 up type can bitrate 250000" >> ~/.bashrc
 echo "ip link set can0 up type can bitrate 250000" >> ~/.bashrc
 echo "nohup python3 /root/Darkflow-HMI-Backend/main.py > /dev/null 2>1&" >> ~/.bashrc
-echo "startx /root/Darkflow-HMI-Backend/dvm-app-front-$VERSION.AppImage --no-sandbox -- -nocursor" >> ~/.bashrc
+echo "startx /root/dvm-app-front-$VERSION.AppImage --no-sandbox -- -nocursor" >> ~/.bashrc
 
 cd /root
 
-git clone https://github.com/darkflowsrl/Darkflow-HMI-Backend.git /root/Darkflow-HMI-Backend/
+
+wget https://github.com/SegarraFacundo/DVM-front/releases/download/v$VERSION/dvm-app-front-$VERSION.AppImage
+chmod +x /root/Darkflow-HMI-Backend/dvm-app-front-$VERSION.AppImage
+
+git clone https://github.com/darkflowsrl/Darkflow-HMI-Backend.git
 
 cd Darkflow-HMI-Backend
 
 pip3 install -r /root/Darkflow-HMI-Backend/requirements.txt
-
-wget https://github.com/SegarraFacundo/DVM-front/releases/download/v$VERSION/dvm-app-front-$VERSION.AppImage
-chmod +x /root/Darkflow-HMI-Backend/dvm-app-front-$VERSION.AppImage
 
 systemctl set-default multi-user.target
 

@@ -109,6 +109,7 @@ def _listen_for_incomming_clients() -> None:
                                           args=(client,),
                                           daemon=True)
             task_write_into_node.start()
+
         except socket.timeout:
             pass
     
@@ -176,6 +177,7 @@ def send_data_over_node(client) -> None:
             log('Error', 'send_data_over_node')
             print("[error] send_data_over_node")
             print(e)
+            break
     
 if __name__ == '__main__':
     while True:
@@ -183,13 +185,16 @@ if __name__ == '__main__':
         task_read_node = Thread(target=reader_loop, args=(port_config,))
         task_write_into_front = Thread(target=send_data_over_socket)
         task_get_rpm = Thread(target=get_rmp)
+        task_send_data_over_node = Thread(target=send_data_over_node)
 
         task_wait_for_client.start()
         task_read_node.start()
         task_write_into_front.start()
         task_get_rpm.start()
+        task_send_data_over_node.start()
         
         task_wait_for_client.join()
         task_read_node.join()
         task_write_into_front.join()
-        #task_get_rpm.join()
+        task_get_rpm.join()
+        task_send_data_over_node.join()
