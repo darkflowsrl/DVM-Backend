@@ -20,7 +20,7 @@ sock = socket.socket(FAMILY, TYPE)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind((HOST, PORT))
 clients: list = []
-nodes: list = []
+nodes: set = ()
 
 log("Se inicio el script satisfactoriamente.", 'main')
 
