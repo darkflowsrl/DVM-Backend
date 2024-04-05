@@ -11,7 +11,7 @@ import time
 Los siguientes comandos de linux sirven para levantar la interfaz can0
 desde el hardware.
 """
-HOST: str = '192.168.40.4'
+HOST: str = '192.168.40.4'  
 PORT: int = 8080    
 FAMILY: int = socket.AF_INET
 TYPE: int = socket.SOCK_STREAM
@@ -45,7 +45,7 @@ Protocolo de funcionamiento normal:
     rpm3 : 1000,
     rpm4 : 0,
 }
-
+, 'send_data_over_node'
 Protocolo de datos meteorológicos:
 {
     command : "datosMeteorologicos",
@@ -85,8 +85,9 @@ def get_status() -> None:
     while True:
         try:
             time.sleep(1)
+            print(f'Nodos -> {nodes}')
+            
             for node in nodes:
-                print(f'Nodos -> {node}')
                 write_on_bus_take_status(bus_config=port_config,
                                 params=BoardTest(node))
         except Exception as e:
