@@ -79,7 +79,18 @@ Protocolo de estado general del nodo:
     ]
 }
 """
-
+def get_status(data: list) -> None:
+    global nodes
+    
+    while True:
+        try:
+            time.sleep(1)
+            for node in nodes:
+                write_on_bus_take_status(bus_config=port_config,
+                                params=BoardTest(node))
+        except:
+            pass
+                        
 def get_rmp() -> None:
     global nodes
     
@@ -153,19 +164,6 @@ def send_data_over_node(client) -> None:
                     write_on_bus_test(bus_config=port_config,
                                     params=BoardTest(node))
                 
-                def get_status() -> None:
-                    while True:
-                        try:
-                            time.sleep(1)
-                            for node in data["nodos"]:
-                                write_on_bus_take_status(bus_config=port_config,
-                                                params=BoardTest(node))
-                        except:
-                            pass
-                        
-                simple_thread = Thread(target=get_status)
-                simple_thread.start()
-                
             elif command == "normal":
                 write_on_bus_all_rpm(bus_config=port_config,
                                         params=BoardParams(data["nodo"],
@@ -188,13 +186,16 @@ if __name__ == '__main__':
         task_read_node = Thread(target=reader_loop, args=(port_config,))
         task_write_into_front = Thread(target=send_data_over_socket)
         task_get_rpm = Thread(target=get_rmp)
-
+        task_take_status = Thread(target=get_status, args=(data,))
+                
         task_wait_for_client.start()
         task_read_node.start()
         task_write_into_front.start()
         task_get_rpm.start()
+        task_take_status.start()
         
         task_wait_for_client.join()
         task_read_node.join()
         task_write_into_front.join()
         task_get_rpm.join()
+        task_take_status.join()
