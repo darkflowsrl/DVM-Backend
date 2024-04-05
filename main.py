@@ -79,7 +79,7 @@ Protocolo de estado general del nodo:
     ]
 }
 """
-def get_status(data: list) -> None:
+def get_status() -> None:
     global nodes
     
     while True:
