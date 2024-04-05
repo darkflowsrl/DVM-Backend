@@ -162,10 +162,9 @@ def send_data_over_node(client) -> None:
             
             data = json.loads(data)
             command: str = data["command"] 
-
-            nodes.extend(data["nodos"])
             
             if command == "testing":
+                nodes.extend(data["nodos"])
                 for node in data["nodos"]:
                     write_on_bus_test(bus_config=port_config,
                                     params=BoardTest(node))
