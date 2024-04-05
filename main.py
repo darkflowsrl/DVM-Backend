@@ -157,6 +157,7 @@ def send_data_over_node(client) -> None:
             data = conn.recv(1024)
             
             log(f'Nuevo Mensaje: {data}', 'send_data_over_node')
+            print(f'Nuevo Mensaje -> {data}')
             
             data = json.loads(data)
             command: str = data["command"] 
