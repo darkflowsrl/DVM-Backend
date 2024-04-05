@@ -88,8 +88,8 @@ def get_status() -> None:
             for node in nodes:
                 write_on_bus_take_status(bus_config=port_config,
                                 params=BoardTest(node))
-        except:
-            pass
+        except Exception as e:
+            print(f'Exception at: get_status -> {str(e)}')
                         
 def get_rmp() -> None:
     global nodes
