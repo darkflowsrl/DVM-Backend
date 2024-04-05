@@ -181,7 +181,7 @@ def send_data_over_node(client) -> None:
                 nodes.append(new_node)
                 
         except Exception as e: 
-            log('Error', 'send_data_over_node')
+            log(f'Error: {e}', 'send_data_over_node')
             print("[error] send_data_over_node")
             print(e)
             break
