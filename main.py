@@ -155,11 +155,14 @@ def send_data_over_node(client) -> None:
                 
                 def get_status() -> None:
                     while True:
-                        time.sleep(6)
-                        for node in data["nodos"]:
-                            write_on_bus_take_status(bus_config=port_config,
-                                            params=BoardTest(node))
-                            
+                        try:
+                            time.sleep(1)
+                            for node in data["nodos"]:
+                                write_on_bus_take_status(bus_config=port_config,
+                                                params=BoardTest(node))
+                        except:
+                            pass
+                        
                 simple_thread = Thread(target=get_status)
                 simple_thread.start()
                 

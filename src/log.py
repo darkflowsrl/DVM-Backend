@@ -14,7 +14,6 @@ def _check_log_file(MAX: int = 10) -> None:
     size: int = os.path.getsize(LOG_PATH)
     if size//1000000 >= MAX: open(LOG_PATH, "w").close()
 
-
 def log(message: str, instance: any = 'Unknow Instance') -> None:
     try:
         _check_log_file()

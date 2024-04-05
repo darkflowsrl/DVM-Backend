@@ -2,3 +2,4 @@
 *.pyc
 src/tempCodeRunnerFile.py
 *.txt
+.linux-env
