@@ -86,6 +86,7 @@ def get_status() -> None:
         try:
             time.sleep(1)
             for node in nodes:
+                print(f'Nodos -> {node}')
                 write_on_bus_take_status(bus_config=port_config,
                                 params=BoardTest(node))
         except Exception as e:
@@ -148,16 +149,19 @@ def send_data_over_socket() -> None:
                     pass
             
 def send_data_over_node(client) -> None:
+    global nodes
+    
     while True:
         try:
             conn = client["conn"]
             data = conn.recv(1024)
-
+            
             log(f'Nuevo Mensaje: {data}', 'send_data_over_node')
             
             data = json.loads(data)
             command: str = data["command"] 
 
+            nodes.extend(data["nodos"])
             
             if command == "testing":
                 for node in data["nodos"]:
