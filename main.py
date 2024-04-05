@@ -11,7 +11,7 @@ import time
 Los siguientes comandos de linux sirven para levantar la interfaz can0
 desde el hardware.
 """
-HOST: str = '192.168.1.62'
+HOST: str = '192.168.40.4'
 PORT: int = 8080    
 FAMILY: int = socket.AF_INET
 TYPE: int = socket.SOCK_STREAM
@@ -186,7 +186,7 @@ if __name__ == '__main__':
         task_read_node = Thread(target=reader_loop, args=(port_config,))
         task_write_into_front = Thread(target=send_data_over_socket)
         task_get_rpm = Thread(target=get_rmp)
-        task_take_status = Thread(target=get_status, args=(data,))
+        task_take_status = Thread(target=get_status)
                 
         task_wait_for_client.start()
         task_read_node.start()
