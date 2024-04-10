@@ -21,6 +21,42 @@ Guardado de los estados de los motores por cada Nodo:
 ]
 
 """
+
+from typing import List, Dict, Any
+
+class NodeConfiguration:
+    def __init__(self,
+                 board_id: int,
+                 variacion_rpm: int,
+                 subcorriente: float,
+                 sobrecorriente: float,
+                 cortocicuito: float,
+                 sensor: int,
+                 electrovalvula: int) -> None:
+        
+        self.board_id = board_id 
+        self.board_id_bytes = self.board_id.to_bytes(2, 'little')
+        self.variacion_rpm = variacion_rpm
+        self.subcorriente = subcorriente
+        self.sobrecorriente = sobrecorriente
+        self.cortocicuito = cortocicuito
+        self.sensor = sensor
+        self.electrovalvula = electrovalvula
+    
+    def parse_into_hex(self) -> Dict[str, List]:
+        variacion_rpm: bytes = self.variacion_rpm.to_bytes(2, 'little')
+        subcorriente: bytes = self.subcorriente.to_bytes(2, 'little')
+        sobrecorriente: bytes = self.sobrecorriente.to_bytes(2, 'little')
+        cortocicuito: bytes = self.cortocicuito.to_bytes(2, 'little')
+        
+        return {
+            'variacion_rpm': variacion_rpm,
+            'subcorriente': subcorriente,
+            'sobrecorriente': sobrecorriente,
+            'cortocicuito': cortocicuito
+        }
+    
+
 class CanPortConfig:
     def __init__(self, interface: str,
                  channel: str,
@@ -151,7 +187,7 @@ class Parser:
         self.data = data
         self.data_int = int.from_bytes(self.data, byteorder='little')
         
-    def parse(self, mod_buffer: StateBuffer) -> StateBuffer:
+    def parse(self, mod_buffer: StateBuffer) -> StateBuffer | List[int]:
         if self.id == 130313:
             humidity: float = round(self.data_int * 0.004, 2)
             mod_buffer.hum = humidity
@@ -215,8 +251,11 @@ class Parser:
                                             corr3,
                                             corr4,
                                             voltaje)
-        
-        return mod_buffer
+
+        elif self.id == 10021:
+            return 'new_board', int.from_bytes(self.data[0:2], byteorder='little')
+            
+        return "state_buffer", mod_buffer
     
 class BoardParams:
     def __init__(self,

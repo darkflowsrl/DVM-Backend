@@ -1,4 +1,17 @@
-from src.can_bus import reader_loop, write_on_bus_all_rpm, write_on_bus_test, write_on_bus_take_status, write_on_bus_take_rpm, buffer, port_config
+from src.can_bus import (
+    reader_loop,
+    write_on_bus_all_rpm,
+    write_on_bus_test,
+    write_on_bus_take_status,
+    write_on_bus_take_rpm,
+    write_on_bus_all_config,
+    write_scan_boards,
+    write_on_bus_rename,
+    write_on_bus_factory_reset,
+    buffer,
+    port_config,
+    available_boars_from_scan
+    )
 from src.canbus_parser import *
 from src.log import log
 from threading import Thread
@@ -138,10 +151,11 @@ def send_data_over_socket() -> None:
                     data_meteor = json.dumps(buffer.parse_meteor()).encode()
                     data_node_data = json.dumps(buffer.parse_node()).encode()
                     
-                    sleep(0.5)
-                    conn.sendall(data_meteor)
-                    sleep(0.5)
-                    conn.sendall(data_node_data)
+                    all_data: list = [data_meteor, data_node_data]
+                    
+                    for data in all_data:
+                        conn.sendall(data)
+                        sleep(1)
                         
                 except ConnectionError as e:
                     del clients[idx]
@@ -154,7 +168,7 @@ def send_data_over_node(client) -> None:
     
     while True:
         try:
-            conn = client["conn"]
+            conn: socket.socket = client["conn"]
             data = conn.recv(1024)
             
             log(f'Nuevo Mensaje: {data}', 'send_data_over_node')
@@ -168,7 +182,7 @@ def send_data_over_node(client) -> None:
                 for node in data["nodos"]:
                     write_on_bus_test(bus_config=port_config,
                                     params=BoardTest(node))
-                
+                    
             elif command == "normal":
                 write_on_bus_all_rpm(bus_config=port_config,
                                         params=BoardParams(data["nodo"],
@@ -178,12 +192,44 @@ def send_data_over_node(client) -> None:
                                                     data["rpm4"]))     
                 new_node = data["nodo"]
                 nodes.append(new_node)
+            
+            elif command == "setConfiguracion":
+                for nodo in data["configuraciones"]:
+                    nodo_: NodeConfiguration = NodeConfiguration(nodo['nodo'],
+                                                                 nodo['variacionRPM'],
+                                                                 nodo['subcorriente'],
+                                                                 nodo['sobrecorriente'],
+                                                                 nodo['cortocicuito'],
+                                                                 nodo['sensor'],
+                                                                 nodo['electrovalvula'])
+                    write_on_bus_all_config(bus_config=port_config,
+                                            node=nodo_)
+
+            elif command == "scan":
+                write_scan_boards(bus_config=port_config)
                 
+                time.sleep(2) # Sleep to wait to scan ending.
+                
+                data: dict = {
+                    'command': "rtaScan",
+                    'nodos': available_boars_from_scan
+                }
+                data = json.dumps(data).encode()
+                
+                conn.sendall(data)
+            
+            elif command == 'renombrar':
+                write_on_bus_rename(bus_config=port_config,
+                                    b1=BoardParams(data['nodo'], 0, 0, 0, 0),
+                                    b2=BoardParams(data['nodoNombreNuevo'], 0, 0, 0, 0))
+                
+            elif command == 'restablecerFabrica':
+                write_on_bus_factory_reset(bus_config=port_config,
+                                           params=BoardParams(data['nodo'], 0, 0, 0, 0))
+            
         except Exception as e: 
             log(f'Error: {e}', 'send_data_over_node')
-            print("[error] send_data_over_node")
-            print(e)
-            break
+            print(f"[error] send_data_over_node -> {e}")
     
 if __name__ == '__main__':
     while True:
