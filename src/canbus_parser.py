@@ -22,7 +22,7 @@ Guardado de los estados de los motores por cada Nodo:
 
 """
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 
 class NodeConfiguration:
     def __init__(self,
@@ -187,7 +187,7 @@ class Parser:
         self.data = data
         self.data_int = int.from_bytes(self.data, byteorder='little')
         
-    def parse(self, mod_buffer: StateBuffer) -> StateBuffer | List[int]:
+    def parse(self, mod_buffer: StateBuffer) -> Tuple[str, Any]:
         if self.id == 130313:
             humidity: float = round(self.data_int * 0.004, 2)
             mod_buffer.hum = humidity
