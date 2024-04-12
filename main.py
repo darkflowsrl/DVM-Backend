@@ -177,6 +177,9 @@ def send_data_over_node(client) -> None:
             data = json.loads(data)
             command: str = data["command"] 
             
+            if command == 'testError':
+                raise Exception
+            
             if command == "testing":
                 nodes.extend(data["nodos"])
                 for node in data["nodos"]:
