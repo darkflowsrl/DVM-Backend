@@ -230,6 +230,7 @@ def send_data_over_node(client) -> None:
         except Exception as e: 
             log(f'Error: {e}', 'send_data_over_node')
             print(f"[error] send_data_over_node -> {e}")
+            break
     
 if __name__ == '__main__':
     while True:
