@@ -140,25 +140,25 @@ def write_on_bus_all_config(bus_config: CanPortConfig,
     msg_config_rpm_variation = can.Message(arbitration_id=Ids.config_rpm_variation,
                                   data=[node.board_id_bytes[0],
                                         node.board_id_bytes[1],
-                                        int(node.variacion_rpm//10), 0, 0, 0, 0, 0],
+                                        int(node.variacion_rpm*10), 0, 0, 0, 0, 0],
                                   is_extended_id=True)
     
     msg_config_under_currency = can.Message(arbitration_id=Ids.config_under_currency,
                                   data=[node.board_id_bytes[0],
                                         node.board_id_bytes[1],
-                                        int(node.subcorriente//10), 0, 0, 0, 0, 0],
+                                        int(node.subcorriente*10), 0, 0, 0, 0, 0],
                                   is_extended_id=True)
     
     msg_config_over_currency = can.Message(arbitration_id=Ids.config_over_currency,
                                   data=[node.board_id_bytes[0],
                                         node.board_id_bytes[1],
-                                        int(node.sobrecorriente//10), 0, 0, 0, 0, 0],
+                                        int(node.sobrecorriente*10), 0, 0, 0, 0, 0],
                                   is_extended_id=True)
     
     msg_config_shortage = can.Message(arbitration_id=Ids.config_shortage,
                                   data=[node.board_id_bytes[0],
                                         node.board_id_bytes[1],
-                                        int(node.cortocicuito//10), 0, 0, 0, 0, 0],
+                                        int(node.cortocicuito*10), 0, 0, 0, 0, 0],
                                   is_extended_id=True)
     
     msg_config_sensor = can.Message(arbitration_id=Ids.config_sensor,
