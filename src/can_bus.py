@@ -1,6 +1,7 @@
 
 from src.canbus_parser import *
 from src.log import log
+from typing import List
 
 import can
 import time
