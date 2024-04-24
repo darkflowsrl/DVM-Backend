@@ -17,6 +17,7 @@ from src.log import log
 from threading import Thread
 from typing import List
 from time import sleep
+import inspect
 import socket
 import json
 import time
@@ -231,6 +232,7 @@ def send_data_over_node(client) -> None:
             
             elif command == 'renombrar':
                 if data['nodo'] in available_boards_from_scan:
+                    print(f'\n[DEBUG]\n Deleting -> {data["nodo"]}')
                     del(available_boards_from_scan[available_boards_from_scan.index(data['nodo'])])
                 
                 write_on_bus_rename(bus_config=port_config,
@@ -243,7 +245,7 @@ def send_data_over_node(client) -> None:
         
         except Exception as e: 
             log(f'Error: {type(e).__name__}: {e}', 'send_data_over_node')
-            print(f"[error] send_data_over_node -> {type(e).__name__}: {e}")
+            print(f"[error] send_data_over_node -> {type(e).__name__}: {e}, line {inspect.currentframe().f_lineno}")
             break
     
 if __name__ == '__main__':
