@@ -17,7 +17,7 @@ from src.log import log
 from threading import Thread
 from typing import List
 from time import sleep
-import inspect
+import sys
 import socket
 import json
 import time
@@ -243,9 +243,10 @@ def send_data_over_node(client) -> None:
                 write_on_bus_factory_reset(bus_config=port_config,
                                            params=BoardParams(data['nodo'], 0, 0, 0, 0))
         
-        except Exception as e: 
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
             log(f'Error: {type(e).__name__}: {e}', 'send_data_over_node')
-            print(f"[error] send_data_over_node -> {type(e).__name__}: {e}, line {inspect.currentframe().f_lineno}")
+            print(f"[error] send_data_over_node -> {type(e).__name__}: {e} , {exc_obj}, line {exc_tb.tb_lineno}")
             break
     
 if __name__ == '__main__':
