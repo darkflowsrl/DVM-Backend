@@ -15,8 +15,6 @@ sock.bind((HOST, PORT))
 sock.listen()
 conn, add = sock.accept(); CONNECTED = True
 
-
-
 def send_data_over_socket() -> None:
     global CONNECTED
     while True:

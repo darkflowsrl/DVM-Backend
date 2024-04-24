@@ -170,12 +170,13 @@ def send_data_over_socket() -> None:
             
 def send_data_over_node(client) -> None:
     global nodes
-    global available_boards_from_scan
     
     while True:
         try:
             conn: socket.socket = client["conn"]
             data = conn.recv(1024*10)
+            
+            print(f'\n[DEBUG]\n Deleting -> {data}')
             
             data = json.loads(data)
             command: str = data["command"] 
@@ -221,7 +222,7 @@ def send_data_over_node(client) -> None:
                 
                 data: dict = {
                     "command": "rtaScan",
-                    "nodos": available_boards_from_scan
+                    "nodos": available_boards_from_scan.copy()
                 }
                 
                 nodes.extend(available_boards_from_scan)
@@ -231,10 +232,6 @@ def send_data_over_node(client) -> None:
                 conn.sendall(data)
             
             elif command == 'renombrar':
-                if data['nodo'] in available_boards_from_scan:
-                    print(f'\n[DEBUG]\n Deleting -> {data["nodo"]}')
-                    del(available_boards_from_scan[available_boards_from_scan.index(data['nodo'])])
-                
                 write_on_bus_rename(bus_config=port_config,
                                     b1=BoardParams(data['nodo'], 0, 0, 0, 0),
                                     b2=BoardParams(data['nodoNombreNuevo'], 0, 0, 0, 0))

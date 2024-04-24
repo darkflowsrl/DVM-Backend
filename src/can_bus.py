@@ -222,6 +222,7 @@ def write_scan_boards(bus_config: CanPortConfig) -> None:
 def write_on_bus_rename(bus_config: CanPortConfig,
                           b1: BoardTest,
                           b2: BoardTest) -> None:
+    available_boards_from_scan.clear()
     msg = can.Message(arbitration_id=Ids.rename,
                                   data=[b1.board_id_bytes[0],
                                         b1.board_id_bytes[1],
