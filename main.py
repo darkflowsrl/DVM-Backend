@@ -176,8 +176,6 @@ def send_data_over_node(client) -> None:
             conn: socket.socket = client["conn"]
             data = conn.recv(1024*10)
             
-            print(f'\n[DEBUG]\n Deleting -> {data}')
-            
             data = json.loads(data)
             command: str = data["command"] 
             
