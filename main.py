@@ -195,11 +195,11 @@ def send_data_over_node(client) -> None:
             conn: socket.socket = client["conn"]
             data = conn.recv(1024)
             
-            log(f'Nuevo Mensaje: {data}', 'send_data_over_node')
-            print(f'Nuevo Mensaje -> {data}')
-            
             data = json.loads(data)
             command: str = data["command"] 
+
+            log(f'New message: {data}', 'send_data_over_node')
+            print(f'New message -> {data}')
             
             if command == 'testError':
                 raise Exception
