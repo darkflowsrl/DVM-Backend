@@ -2,6 +2,7 @@
 from src.canbus_parser import *
 from src.log import log
 
+import threading
 import can
 import time
 
@@ -32,6 +33,15 @@ class Ids:
     
     rename: int = 10030
     factory_reset: int = 10040
+
+def clean_available_boards_from_scan() -> None:
+    global available_boards_from_scan
+    while True:
+        if len(available_boards_from_scan) > 0:
+            time.sleep(5)
+            available_boards_from_scan = []
+        else:
+            break
     
 def load_message(msg: can.Message) -> None:
     global buffer
@@ -207,8 +217,8 @@ def write_on_bus_all_config(bus_config: CanPortConfig,
 
 def write_scan_boards(bus_config: CanPortConfig) -> None:
     msg = can.Message(arbitration_id=Ids.ask_scan,
-                                  data=[0, 0, 0, 0, 0, 0, 0, 0],
-                                  is_extended_id=True)
+                        data=[0, 0, 0, 0, 0, 0, 0, 0],
+                        is_extended_id=True)
 
     with can.interface.Bus(channel=bus_config.channel,
                                interface=bus_config.interface,
@@ -257,3 +267,8 @@ def write_on_bus_factory_reset(bus_config: CanPortConfig,
                 except can.CanError:
                     log('[error] Mensaje no enviado : can error', 'write_on_bus_factory_reset')
                     print('[error] Mensaje no enviado : write_on_bus_factory_reset')
+
+
+clean_thread = threading.Thread(target=clean_available_boards_from_scan,
+                                daemon=True)
+clean_thread.start()

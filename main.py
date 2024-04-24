@@ -9,8 +9,7 @@ from src.can_bus import (
     write_on_bus_rename,
     write_on_bus_factory_reset,
     buffer,
-    port_config,
-    available_boards_from_scan
+    port_config
     )
 from src.canbus_parser import *
 from src.log import log
@@ -95,12 +94,14 @@ Protocolo de estado general del nodo:
 }
 """
 
+node_list: list = []
+
 def get_status() -> None:
     while True:
         try:
             time.sleep(1)
             
-            for node in available_boards_from_scan:
+            for node in node_list:
                 write_on_bus_take_status(bus_config=port_config,
                                 params=BoardTest(node))
         except Exception as e:
@@ -110,7 +111,7 @@ def get_rmp() -> None:
     while True:
         time.sleep(1)
         try:
-            for _, node in enumerate(available_boards_from_scan):
+            for _, node in enumerate(node_list):
                 write_on_bus_take_rpm(bus_config=port_config,
                                 params=BoardTest(int(node)))
         except Exception as e:
@@ -162,9 +163,6 @@ def send_data_over_socket() -> None:
                     pass
             
 def send_data_over_node(client) -> None:
-    global available_boards_from_scan
-    print(f'[DEBUG] send_data_over_node available_boards_from_scan : {available_boards_from_scan}')    
-    
     while True:
         try:
             conn: socket.socket = client["conn"]
@@ -191,9 +189,6 @@ def send_data_over_node(client) -> None:
                                                     data["rpm2"],
                                                     data["rpm3"],
                                                     data["rpm4"]))     
-                new_node = data["nodo"]
-                available_boards_from_scan.append(new_node)
-            
             elif command == "setConfiguracion":
                 for nodo in data["configuraciones"]:
                     nodo_: NodeConfiguration = NodeConfiguration(nodo['nodo'],
@@ -207,18 +202,20 @@ def send_data_over_node(client) -> None:
                                             node=nodo_)
 
             elif command == "scan":
-                available_boards_from_scan.clear()
+                from src.can_bus import available_boards_from_scan
+                
+                boards: list = available_boards_from_scan.copy()
                 
                 write_scan_boards(bus_config=port_config)
                 
-                time.sleep(5) # Sleep to wait to scan ending.
+                time.sleep(2) # Sleep to wait to scan ending.
                 
                 data: dict = {
                     "command": "rtaScan",
-                    "nodos": available_boards_from_scan.copy()
+                    "nodos": boards
                 }
                 
-                available_boards_from_scan.extend(available_boards_from_scan)
+                node_list.extend(boards)
                 
                 data = json.dumps(data).encode()
                 
