@@ -214,9 +214,12 @@ def send_data_over_node(client) -> None:
 
             elif command == "scan":
                 available_boards_from_scan.clear()
+                
+                time.sleep(1)
+                
                 write_scan_boards(bus_config=port_config)
                 
-                time.sleep(2) # Sleep to wait to scan ending.
+                time.sleep(5) # Sleep to wait to scan ending.
                 
                 data: dict = {
                     "command": "rtaScan",

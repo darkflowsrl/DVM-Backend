@@ -47,7 +47,7 @@ def load_message(msg: can.Message) -> None:
         available_boards_from_scan.append(parsed)
         print(f'[DEBUG] Available boards -> {available_boards_from_scan}')
         available_boards_from_scan = [x for x in set(available_boards_from_scan)]
-    
+        
     elif type_ == 'state_buffer':
         buffer = parsed
     
