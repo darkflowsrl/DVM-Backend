@@ -205,6 +205,8 @@ def send_data_over_node(client) -> None:
                 from src.can_bus import available_boards_from_scan
                 
                 boards: list = available_boards_from_scan.copy()
+
+                available_boards_from_scan.clear()
                 
                 write_scan_boards(bus_config=port_config)
                 
