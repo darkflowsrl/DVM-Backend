@@ -36,7 +36,7 @@ sock = socket.socket(FAMILY, TYPE)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind((HOST, PORT))
 clients: list = []
-nodes: list = []
+available_boards_from_scan: list = []
 
 log("Se inicio el script satisfactoriamente.", 'main')
 
@@ -97,27 +97,26 @@ Protocolo de estado general del nodo:
 """
 
 def get_status() -> None:
-    global nodes
+    global available_boards_from_scan
     
     while True:
         try:
             time.sleep(1)
-            print(f'Nodos -> {nodes}')
             
-            for node in nodes:
+            for node in available_boards_from_scan:
                 write_on_bus_take_status(bus_config=port_config,
                                 params=BoardTest(node))
         except Exception as e:
             print(f'Exception at: get_status -> {str(e)}')
                         
 def get_rmp() -> None:
-    global nodes
+    global available_boards_from_scan
     
     while True:
-        nodes = list(set(nodes))
+        available_boards_from_scan = list(set(available_boards_from_scan))
         time.sleep(1)
         try:
-            for i, node in enumerate(nodes):
+            for _, node in enumerate(available_boards_from_scan):
                 write_on_bus_take_rpm(bus_config=port_config,
                                 params=BoardTest(int(node)))
         except Exception as e:
@@ -169,9 +168,8 @@ def send_data_over_socket() -> None:
                     pass
             
 def send_data_over_node(client) -> None:
-    global nodes
     global available_boards_from_scan
-    
+    print(f'[DEBUG] send_data_over_node available_boards_from_scan : {available_boards_from_scan}')    
     while True:
         try:
             conn: socket.socket = client["conn"]
@@ -199,7 +197,7 @@ def send_data_over_node(client) -> None:
                                                     data["rpm3"],
                                                     data["rpm4"]))     
                 new_node = data["nodo"]
-                nodes.append(new_node)
+                available_boards_from_scan.append(new_node)
             
             elif command == "setConfiguracion":
                 for nodo in data["configuraciones"]:
@@ -225,7 +223,7 @@ def send_data_over_node(client) -> None:
                     "nodos": available_boards_from_scan.copy()
                 }
                 
-                nodes.extend(available_boards_from_scan)
+                available_boards_from_scan.extend(available_boards_from_scan)
                 
                 data = json.dumps(data).encode()
                 
