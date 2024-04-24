@@ -163,6 +163,8 @@ def send_data_over_socket() -> None:
                     pass
             
 def send_data_over_node(client) -> None:
+    global node_list
+    
     while True:
         try:
             conn: socket.socket = client["conn"]
