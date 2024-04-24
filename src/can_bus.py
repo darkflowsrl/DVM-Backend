@@ -43,10 +43,11 @@ def load_message(msg: can.Message) -> None:
     type_, parsed = message_parser.parse(buffer)
     
     if type_ == 'new_board':
-        print(f'[DEBUG] New board -> {parsed}')
         available_boards_from_scan.append(parsed)
-        print(f'[DEBUG] Available boards -> {available_boards_from_scan}')
         available_boards_from_scan = [x for x in set(available_boards_from_scan)]
+        
+        print(f'[DEBUG] New board -> {parsed}')
+        print(f'[DEBUG] Available boards -> {available_boards_from_scan}')
         
     elif type_ == 'state_buffer':
         buffer = parsed
@@ -223,7 +224,6 @@ def write_scan_boards(bus_config: CanPortConfig) -> None:
 def write_on_bus_rename(bus_config: CanPortConfig,
                           b1: BoardTest,
                           b2: BoardTest) -> None:
-    available_boards_from_scan.clear()
     msg = can.Message(arbitration_id=Ids.rename,
                                   data=[b1.board_id_bytes[0],
                                         b1.board_id_bytes[1],
