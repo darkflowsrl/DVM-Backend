@@ -118,7 +118,7 @@ def write_on_bus_take_status(bus_config: CanPortConfig,
                                receive_own_messages=True) as bus:
                 try:
                     bus.send(msg)
-                    # print('[ok] Mensaje enviado : write_on_bus_take_status')
+
                     log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", 'write_on_bus_take_status')
                 except can.CanError:
                     log('[error] Mensaje no enviado : can error', 'write_on_bus_take_status')
