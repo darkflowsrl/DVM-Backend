@@ -35,6 +35,7 @@ class Ids:
     
 def load_message(msg: can.Message) -> None:
     global buffer
+    global available_boards_from_scan
 
     if msg.arbitration_id in [130313, 130306, 65269, 1000, 64070, 64071, 64837, 64838, 10021]: print(f'MSG -> {msg}')
     

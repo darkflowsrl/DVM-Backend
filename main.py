@@ -189,6 +189,7 @@ def send_data_over_socket() -> None:
             
 def send_data_over_node(client) -> None:
     global nodes
+    global available_boards_from_scan
     
     while True:
         try:
@@ -258,7 +259,6 @@ def send_data_over_node(client) -> None:
                 write_on_bus_factory_reset(bus_config=port_config,
                                            params=BoardParams(data['nodo'], 0, 0, 0, 0))
         
-        # Get a more detailed exception 
         except Exception as e: 
             log(f'Error: {type(e).__name__}: {e}', 'send_data_over_node')
             print(f"[error] send_data_over_node -> {type(e).__name__}: {e}")
