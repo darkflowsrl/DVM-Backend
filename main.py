@@ -186,7 +186,6 @@ def send_data_over_node(client) -> None:
                 raise Exception
             
             if command == "testing":
-                nodes.extend(data["nodos"])
                 for node in data["nodos"]:
                     write_on_bus_test(bus_config=port_config,
                                     params=BoardTest(node))
@@ -218,8 +217,6 @@ def send_data_over_node(client) -> None:
                 write_scan_boards(bus_config=port_config)
                 
                 time.sleep(2) # Sleep to wait to scan ending.
-                
-                print(f'[DEBUG] available_boards_from_scan: {available_boards_from_scan}')
                 
                 data: dict = {
                     "command": "rtaScan",

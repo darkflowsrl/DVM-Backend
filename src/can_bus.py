@@ -1,7 +1,6 @@
 
 from src.canbus_parser import *
 from src.log import log
-from typing import List
 
 import can
 import time
@@ -46,6 +45,7 @@ def load_message(msg: can.Message) -> None:
     if type_ == 'new_board':
         print(f'[DEBUG] New board -> {parsed}')
         available_boards_from_scan.append(parsed)
+        print(f'[DEBUG] Available boards -> {available_boards_from_scan}')
         available_boards_from_scan = [x for x in set(available_boards_from_scan)]
     
     elif type_ == 'state_buffer':
