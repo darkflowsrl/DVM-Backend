@@ -43,7 +43,7 @@ def load_message(msg: can.Message) -> None:
     type_, parsed = message_parser.parse(buffer)
     
     if type_ == 'new_board':
-        print('[DEBUG] New board -> {parsed}')
+        print(f'[DEBUG] New board -> {parsed}')
         available_boards_from_scan.append(parsed)
         available_boards_from_scan = [x for x in set(available_boards_from_scan)]
     
