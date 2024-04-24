@@ -13,7 +13,7 @@ port_config: CanPortConfig = CanPortConfig(interface="socketcan",
                                            baudrate=250000)
 
 buffer = StateBuffer()
-available_boards_from_scan: List[int] = []
+available_boards_from_scan: list = []
 
 class Ids:
     set_individual_rpm: int = 64835
