@@ -24,7 +24,8 @@ import time
 Los siguientes comandos de linux sirven para levantar la interfaz can0
 desde el hardware.
 """
-HOST: str = 'localhost'  
+IPS: list[str] = ['localhost', '192.168.1.62']
+HOST: str = IPS[1]
 PORT: int = 8080    
 FAMILY: int = socket.AF_INET
 TYPE: int = socket.SOCK_STREAM
@@ -110,7 +111,7 @@ IDs of the boards that respond to the scan message.
 def clean_boards_list() -> None:
     global available_boards_from_scan
     
-    time.sleep(5)
+    time.sleep(10)
     available_boards_from_scan = []
 
 def get_status() -> None:
