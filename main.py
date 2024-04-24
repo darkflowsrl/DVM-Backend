@@ -112,7 +112,7 @@ IDs of the boards that respond to the scan message.
 def clean_boards_list() -> None:
     global available_boards_from_scan
     
-    time.sleep(10)
+    time.sleep(1)
     available_boards_from_scan = []
 
 def get_status() -> None:
@@ -193,13 +193,13 @@ def send_data_over_node(client) -> None:
     while True:
         try:
             conn: socket.socket = client["conn"]
-            data = conn.recv(1024)
+            data = conn.recv(1024*10)
             
             data = json.loads(data)
             command: str = data["command"] 
-
-            log(f'New message: {data}', 'send_data_over_node')
-            print(f'New message -> {data}')
+            
+            log(f'Nuevo mensaje recibido: {data}', 'send_data_over_node')
+            print(f'Nuevo mensaje recibido -> {data}')
             
             if command == 'testError':
                 raise Exception
@@ -235,8 +235,6 @@ def send_data_over_node(client) -> None:
             elif command == "scan":
                 write_scan_boards(bus_config=port_config)
                 
-                Thread(target=clean_boards_list, daemon=True).start()
-                
                 time.sleep(2) # Sleep to wait to scan ending.
                 
                 data: dict = {
@@ -251,6 +249,7 @@ def send_data_over_node(client) -> None:
                 conn.sendall(data)
             
             elif command == 'renombrar':
+                Thread(target=clean_boards_list, daemon=True).start()
                 write_on_bus_rename(bus_config=port_config,
                                     b1=BoardParams(data['nodo'], 0, 0, 0, 0),
                                     b2=BoardParams(data['nodoNombreNuevo'], 0, 0, 0, 0))
@@ -258,10 +257,11 @@ def send_data_over_node(client) -> None:
             elif command == 'restablecerFabrica':
                 write_on_bus_factory_reset(bus_config=port_config,
                                            params=BoardParams(data['nodo'], 0, 0, 0, 0))
-            
+        
+        # Get a more detailed exception 
         except Exception as e: 
-            log(f'Error: {e}', 'send_data_over_node')
-            print(f"[error] send_data_over_node -> {e}")
+            log(f'Error: {type(e).__name__}: {e}', 'send_data_over_node')
+            print(f"[error] send_data_over_node -> {type(e).__name__}: {e}")
             break
     
 if __name__ == '__main__':
