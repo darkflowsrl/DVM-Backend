@@ -95,26 +95,6 @@ Protocolo de estado general del nodo:
 }
 """
 
-"""
-The clean_boards_list function is used to clear the available_boards_from_scan
-list after 5 seconds. This list is used to store the board
-IDs of the boards that have been scanned on the CAN bus.
-
-The function is called in a separate thread after
-the write_scan_boards function has been called to
-scan the CAN bus for boards. The write_scan_boards
-function sends a scan message to the CAN bus,
-and the reader_loop function listens for the response
-messages from the boards. 
-The available_boards_from_scan list is populated with the board
-IDs of the boards that respond to the scan message.
-"""
-def clean_boards_list() -> None:
-    global available_boards_from_scan
-    
-    time.sleep(1)
-    available_boards_from_scan = []
-
 def get_status() -> None:
     global nodes
     
@@ -250,7 +230,7 @@ def send_data_over_node(client) -> None:
                 conn.sendall(data)
             
             elif command == 'renombrar':
-                Thread(target=clean_boards_list, daemon=True).start()
+                available_boards_from_scan = available_boards_from_scan.clear()
                 write_on_bus_rename(bus_config=port_config,
                                     b1=BoardParams(data['nodo'], 0, 0, 0, 0),
                                     b2=BoardParams(data['nodoNombreNuevo'], 0, 0, 0, 0))

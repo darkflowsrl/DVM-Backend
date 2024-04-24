@@ -3,7 +3,7 @@ from time import sleep
 import socket
 import random
 
-HOST: str = '192.168.0.6'
+HOST: str = '192.168.1.62'
 PORT: int = 8080
 FAMILY: int = socket.AF_INET
 TYPE: int = socket.SOCK_STREAM
@@ -14,6 +14,8 @@ sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind((HOST, PORT))
 sock.listen()
 conn, add = sock.accept(); CONNECTED = True
+
+
 
 def send_data_over_socket() -> None:
     global CONNECTED
