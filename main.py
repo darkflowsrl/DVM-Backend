@@ -15,6 +15,7 @@ from src.can_bus import (
 from src.canbus_parser import *
 from src.log import log
 from threading import Thread
+from typing import List
 from time import sleep
 import socket
 import json
@@ -24,7 +25,7 @@ import time
 Los siguientes comandos de linux sirven para levantar la interfaz can0
 desde el hardware.
 """
-IPS: list[str] = ['localhost', '192.168.1.62']
+IPS: List[str] = ['localhost', '192.168.1.62']
 HOST: str = IPS[1]
 PORT: int = 8080    
 FAMILY: int = socket.AF_INET
@@ -176,6 +177,7 @@ def send_data_over_socket() -> None:
                     all_data: list = [data_meteor, data_node_data]
                     
                     for data in all_data:
+                        log(data, 'send_data_over_socket')
                         conn.sendall(data)
                         sleep(1)
                         
@@ -241,6 +243,9 @@ def send_data_over_node(client) -> None:
                     'command': "rtaScan",
                     'nodos': available_boards_from_scan
                 }
+                
+                nodes.extend(available_boards_from_scan)
+                
                 data = json.dumps(data).encode()
                 
                 conn.sendall(data)
