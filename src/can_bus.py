@@ -34,18 +34,25 @@ class Ids:
     rename: int = 10030
     factory_reset: int = 10040
 
+def clean_available_boards_from_scan() -> None:
+    global available_boards_from_scan
+    time.sleep(5)
+    available_boards_from_scan = []
+    
 def load_message(msg: can.Message) -> None:
     global buffer
     global available_boards_from_scan
 
     if msg.arbitration_id in [130313, 130306, 65269, 1000, 64070, 64071, 64837, 64838, 10021]: print(f'MSG -> {msg}')
     
+    if msg.arbitration_id == 10021: threading.Thread(target=clean_available_boards_from_scan, daemon=True).start()
+    
     message_parser = Parser(msg.arbitration_id, msg.data)
     type_, parsed = message_parser.parse(buffer)
     
     if type_ == 'new_board':
         available_boards_from_scan.append(parsed)
-        available_boards_from_scan = [x for x in set(available_boards_from_scan)]
+        available_boards_from_scan = list(set(available_boards_from_scan))
         
         print(f'[DEBUG] New board -> {parsed}')
         print(f'[DEBUG] Available boards -> {available_boards_from_scan}')

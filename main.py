@@ -207,16 +207,13 @@ def send_data_over_node(client) -> None:
 
                 from src.can_bus import available_boards_from_scan
                 
-                boards: list = available_boards_from_scan.copy()
-                
-                available_boards_from_scan.clear()
-                
                 data: dict = {
                     "command": "rtaScan",
-                    "nodos": boards
+                    "nodos": available_boards_from_scan
                 }
                 
-                node_list.extend(boards)
+                node_list.extend(available_boards_from_scan)
+                node_list = list(set(node_list))
                 
                 data = json.dumps(data).encode()
                 
