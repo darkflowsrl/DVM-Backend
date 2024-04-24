@@ -36,7 +36,6 @@ sock = socket.socket(FAMILY, TYPE)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind((HOST, PORT))
 clients: list = []
-available_boards_from_scan: list = []
 
 log("Se inicio el script satisfactoriamente.", 'main')
 
@@ -97,8 +96,6 @@ Protocolo de estado general del nodo:
 """
 
 def get_status() -> None:
-    global available_boards_from_scan
-    
     while True:
         try:
             time.sleep(1)
@@ -110,10 +107,7 @@ def get_status() -> None:
             print(f'Exception at: get_status -> {str(e)}')
                         
 def get_rmp() -> None:
-    global available_boards_from_scan
-    
     while True:
-        available_boards_from_scan = list(set(available_boards_from_scan))
         time.sleep(1)
         try:
             for _, node in enumerate(available_boards_from_scan):
@@ -170,6 +164,7 @@ def send_data_over_socket() -> None:
 def send_data_over_node(client) -> None:
     global available_boards_from_scan
     print(f'[DEBUG] send_data_over_node available_boards_from_scan : {available_boards_from_scan}')    
+    
     while True:
         try:
             conn: socket.socket = client["conn"]
