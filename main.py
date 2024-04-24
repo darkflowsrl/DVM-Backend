@@ -214,14 +214,13 @@ def send_data_over_node(client) -> None:
                                             node=nodo_)
 
             elif command == "scan":
-                available_boards_from_scan.clear()
                 write_scan_boards(bus_config=port_config)
                 
                 time.sleep(2) # Sleep to wait to scan ending.
                 
                 data: dict = {
-                    'command': "rtaScan",
-                    'nodos': available_boards_from_scan
+                    "command": "rtaScan",
+                    "nodos": available_boards_from_scan
                 }
                 
                 nodes.extend(available_boards_from_scan)
@@ -231,6 +230,9 @@ def send_data_over_node(client) -> None:
                 conn.sendall(data)
             
             elif command == 'renombrar':
+                if data['nodo'] in available_boards_from_scan:
+                    del(available_boards_from_scan[available_boards_from_scan.index(data['nodo'])])
+                
                 write_on_bus_rename(bus_config=port_config,
                                     b1=BoardParams(data['nodo'], 0, 0, 0, 0),
                                     b2=BoardParams(data['nodoNombreNuevo'], 0, 0, 0, 0))
