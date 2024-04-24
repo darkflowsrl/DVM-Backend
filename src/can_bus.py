@@ -12,7 +12,8 @@ port_config: CanPortConfig = CanPortConfig(interface="socketcan",
                                            baudrate=250000)
 
 buffer = StateBuffer()
-available_boars_from_scan: List[int] = []
+available_boards_from_scan: List[int] = []
+
 class Ids:
     set_individual_rpm: int = 64835
     test_board: int = 64069
@@ -41,7 +42,7 @@ def load_message(msg: can.Message) -> None:
     type_, parsed = message_parser.parse(buffer)
     
     if type_ == 'new_board':
-        available_boars_from_scan.append(parsed)
+        available_boards_from_scan.append(parsed)
     
     elif type_ == 'state_buffer':
         buffer = parsed
@@ -56,8 +57,9 @@ def reader_loop(config: CanPortConfig) -> None:
                     for message in bus:
                         load_message(message)
                 except Exception as e:
-                    print(f'Excepcion: {e}')
-                    log(e, 'reader_loop')
+                    log(f'[error] {e}', 'reader_loop')
+                    print(f'[error]: {e}')
+                    
                 
 def write_on_bus_all_rpm(bus_config: CanPortConfig,
                          params: BoardParams) -> None:    
@@ -77,8 +79,9 @@ def write_on_bus_all_rpm(bus_config: CanPortConfig,
                 try:
                     bus.send(msg)
                     # print('[ok] Mensaje enviado : write_on_bus_all_rpm')
-                    # log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", 'write_on_bus_test')
+                    log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", 'write_on_bus_test')
                 except can.CanError:
+                    log('[error] Mensaje no enviado : can error', 'write_on_bus_all_rpm')
                     print('[error] Mensaje no enviado : write_on_bus_all_rpm')
 
 def write_on_bus_test(bus_config: CanPortConfig,
@@ -94,9 +97,10 @@ def write_on_bus_test(bus_config: CanPortConfig,
                                receive_own_messages=True) as bus:
                 try:
                     bus.send(msg)
-                    # log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", 'write_on_bus_test')
                     # print('[ok] Mensaje enviado : write_on_bus_test')
+                    log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", 'write_on_bus_test')
                 except can.CanError:
+                    log('[error] Mensaje no enviado : can error', 'write_on_bus_test')
                     print('[error] Mensaje no enviado : write_on_bus_test')
 
 def write_on_bus_take_status(bus_config: CanPortConfig,
@@ -112,9 +116,10 @@ def write_on_bus_take_status(bus_config: CanPortConfig,
                                receive_own_messages=True) as bus:
                 try:
                     bus.send(msg)
-                    # log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", 'write_on_bus_take_status')
                     # print('[ok] Mensaje enviado : write_on_bus_take_status')
+                    log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", 'write_on_bus_take_status')
                 except can.CanError:
+                    log('[error] Mensaje no enviado : can error', 'write_on_bus_take_status')
                     print('[error] Mensaje no enviado : write_on_bus_take_status')
 
 def write_on_bus_take_rpm(bus_config: CanPortConfig,
@@ -130,9 +135,10 @@ def write_on_bus_take_rpm(bus_config: CanPortConfig,
                                receive_own_messages=True) as bus:
                 try:
                     bus.send(msg)
-                    # log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", 'write_on_bus_take_rpm')
                     # print('[ok] Mensaje enviado : write_on_bus_take_rpm')
+                    log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", 'write_on_bus_take_rpm')
                 except can.CanError:
+                    log('[error] Mensaje no enviado : can error', 'write_on_bus_take_rpm')
                     print('[error] Mensaje no enviado : write_on_bus_take_rpm')
 
 def write_on_bus_all_config(bus_config: CanPortConfig,
@@ -191,7 +197,8 @@ def write_on_bus_all_config(bus_config: CanPortConfig,
                         bus.send(msg)
                         time.sleep(0.05)
                 except can.CanError:
-                    print('[error] Mensaje no enviado : write_on_bus_take_rpm')      
+                    log('[error] Mensaje no enviado : can error', 'write_on_bus_all_config')
+                    print('[error] Mensaje no enviado : write_on_bus_all_config')      
 
 def write_scan_boards(bus_config: CanPortConfig) -> None:
     msg = can.Message(arbitration_id=Ids.ask_scan,
@@ -205,7 +212,8 @@ def write_scan_boards(bus_config: CanPortConfig) -> None:
                 try:
                     bus.send(msg)
                 except can.CanError:
-                    print('[error] Mensaje no enviado : write_on_bus_take_rpm')
+                    log('[error] Mensaje no enviado : can error', 'write_scan_boards')
+                    print('[error] Mensaje no enviado : write_scan_boards')
 
 
 def write_on_bus_rename(bus_config: CanPortConfig,
@@ -225,7 +233,8 @@ def write_on_bus_rename(bus_config: CanPortConfig,
                 try:
                     bus.send(msg)
                 except can.CanError:
-                    print('[error] Mensaje no enviado : write_on_bus_take_rpm')
+                    log('[error] Mensaje no enviado : can error', 'write_on_bus_rename')
+                    print('[error] Mensaje no enviado : write_on_bus_rename')
 
 def write_on_bus_factory_reset(bus_config: CanPortConfig,
                           params: BoardTest) -> None:
@@ -241,4 +250,5 @@ def write_on_bus_factory_reset(bus_config: CanPortConfig,
                 try:
                     bus.send(msg)
                 except can.CanError:
-                    print('[error] Mensaje no enviado : write_on_bus_take_rpm')
+                    log('[error] Mensaje no enviado : can error', 'write_on_bus_factory_reset')
+                    print('[error] Mensaje no enviado : write_on_bus_factory_reset')

@@ -10,7 +10,7 @@ from src.can_bus import (
     write_on_bus_factory_reset,
     buffer,
     port_config,
-    available_boars_from_scan
+    available_boards_from_scan
     )
 from src.canbus_parser import *
 from src.log import log
@@ -92,6 +92,27 @@ Protocolo de estado general del nodo:
     ]
 }
 """
+
+"""
+The clean_boards_list function is used to clear the available_boards_from_scan
+list after 5 seconds. This list is used to store the board
+IDs of the boards that have been scanned on the CAN bus.
+
+The function is called in a separate thread after
+the write_scan_boards function has been called to
+scan the CAN bus for boards. The write_scan_boards
+function sends a scan message to the CAN bus,
+and the reader_loop function listens for the response
+messages from the boards. 
+The available_boards_from_scan list is populated with the board
+IDs of the boards that respond to the scan message.
+"""
+def clean_boards_list() -> None:
+    global available_boards_from_scan
+    
+    time.sleep(5)
+    available_boards_from_scan = []
+
 def get_status() -> None:
     global nodes
     
@@ -211,11 +232,13 @@ def send_data_over_node(client) -> None:
             elif command == "scan":
                 write_scan_boards(bus_config=port_config)
                 
+                Thread(target=clean_boards_list, daemon=True).start()
+                
                 time.sleep(2) # Sleep to wait to scan ending.
                 
                 data: dict = {
                     'command': "rtaScan",
-                    'nodos': available_boars_from_scan
+                    'nodos': available_boards_from_scan
                 }
                 data = json.dumps(data).encode()
                 
