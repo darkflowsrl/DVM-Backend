@@ -38,7 +38,31 @@ def clean_available_boards_from_scan() -> None:
     global available_boards_from_scan
     time.sleep(5)
     available_boards_from_scan = []
-    
+
+"""
+La función load_message se utiliza para analizar los mensajes CAN entrantes y actualizar el búfer y las variables globales disponibles_boards_from_scan en consecuencia.
+
+La función toma un argumento:
+
+msg: un objeto can.Message que representa el mensaje CAN entrante.
+La función primero verifica si el ID de arbitraje del mensaje está en una lista de ID de arbitraje conocidos. Si el ID de arbitraje está en la lista, el mensaje se imprime en la consola.
+
+A continuación, la función comprueba si el ID de arbitraje del mensaje es 10021. 
+Si es así, se crea un nuevo hilo para llamar a la función clean_available_boards_from_scan. La función clean_available_boards_from_scan se utiliza para borrar la lista de available_boards_from_scan después de 5 segundos.
+
+Después de verificar el ID de arbitraje, la función crea un objeto Parser y llama al método de análisis en el objeto. 
+El método de análisis toma dos argumentos:
+
+arbitration_id: el ID de arbitraje del mensaje.
+datos: Los bytes de datos del mensaje.
+El método de análisis devuelve una tupla que contiene dos valores:
+
+type_: una cadena que representa el tipo de mensaje.
+analizado: los datos analizados del mensaje.
+Si el valor type_ es 'new_board', la función agrega el valor analizado a la lista available_boards_from_scan. La lista available_boards_from_scan se utiliza para almacenar los ID de las placas que se han escaneado en el bus CAN.
+
+Si el valor_tipo es 'state_buffer', la función establece la variable global del búfer en el valor analizado. La variable global del búfer se utiliza para almacenar el estado del bus CAN.
+"""
 def load_message(msg: can.Message) -> None:
     global buffer
     global available_boards_from_scan
@@ -60,6 +84,24 @@ def load_message(msg: can.Message) -> None:
     elif type_ == 'state_buffer':
         buffer = parsed
     
+"""
+La función reader_loop se utiliza para leer continuamente mensajes del bus CAN y llamar a la función load_message
+para analizar los mensajes. La función toma un argumento:
+
+config: un objeto CanPortConfig que especifica la configuración del bus CAN que se utilizará.
+La función primero crea un objeto can.interface.Bus usando la configuración especificada.
+El objeto Bus se utiliza para leer mensajes del bus CAN.
+
+Luego, la función entra en un bucle infinito. En el bucle, la función llama al bucle for para iterar
+sobre los mensajes que se reciben desde el bus CAN. Para cada mensaje,
+la función llama a la función load_message para analizar el mensaje.
+
+La función load_message es responsable de analizar el mensaje CAN y actualizar el búfer
+y las variables globales disponibles_boards_from_scan en consecuencia.
+
+Si se produce una excepción al leer mensajes del bus CAN, la función imprime la excepción
+en la consola y la registra en un archivo.
+"""
 def reader_loop(config: CanPortConfig) -> None:
         while True:
             with can.interface.Bus(channel=config.channel,

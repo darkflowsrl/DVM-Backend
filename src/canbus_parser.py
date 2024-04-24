@@ -24,6 +24,41 @@ Guardado de los estados de los motores por cada Nodo:
 
 from typing import List, Dict, Any, Tuple
 
+
+"""
+La clase NodeConfiguration se utiliza para almacenar los parámetros
+de configuración para un nodo específico en el bus CAN. 
+La clase tiene los siguientes atributos:
+
+board_id: el ID del nodo.
+board_id_bytes: el ID del nodo como matriz de bytes.
+variacion_rpm: La variación de RPM deseada para el nodo.
+subcorriente: La corriente subterránea deseada para el nodo.
+sobrecorriente: La sobrecorriente deseada para el nodo.
+cortocicuito: El cortocircuito deseado para el nodo.
+sensor: El sensor deseado para el nodo.
+electrovalvula: La electroválvula deseada para el nodo.
+El método __init__() se utiliza para inicializar el objeto NodeConfiguration. 
+El método toma los siguientes argumentos:
+
+board_id: el ID del nodo.
+variacion_rpm: La variación de RPM deseada para el nodo.
+subcorriente: La corriente subterránea deseada para el nodo.
+sobrecorriente: La sobrecorriente deseada para el nodo.
+cortocicuito: El cortocircuito deseado para el nodo.
+sensor: El sensor deseado para el nodo.
+electrovalvula: La electroválvula deseada para el nodo.
+El método parse_into_hex() se utiliza para convertir los parámetros 
+de configuración en un diccionario de bytearrays. El método no toma argumentos y 
+devuelve un diccionario con las siguientes claves:
+
+variacion_rpm: La variación de RPM deseada para el nodo como bytearray.
+subcorriente: La corriente subyacente deseada para el nodo como un bytearray.
+sobrecorriente: La sobrecorriente deseada para el nodo como bytearray.
+cortocicuito: El cortocircuito deseado para el nodo como bytearray.
+El método parse_into_hex() se utiliza para convertir los parámetros de configuración 
+a un formato que pueda enviarse a través del bus CAN.
+"""
 class NodeConfiguration:
     def __init__(self,
                  board_id: int,
@@ -65,6 +100,59 @@ class CanPortConfig:
         self.channel = channel
         self.baudrate = baudrate
 
+
+"""
+La clase StateBuffer se utiliza para almacenar
+el estado del bus CAN. La clase tiene los siguientes atributos:
+
+zumbido: El nivel de humedad.
+wind_dir: La dirección del viento.
+wind_speed: La velocidad del viento.
+temperatura: La temperatura.
+pr: La presión.
+node_states: una lista de diccionarios, cada uno de los cuales representa el estado de un nodo en el bus CAN.
+
+El método put_node_states_test() se utiliza para actualizar el estado
+de un nodo en la lista node_states. El método toma los siguientes argumentos:
+
+id: el ID del nodo.
+state1: el estado del primer motor en el nodo.
+state2: el estado del segundo motor en el nodo.
+state3: el estado del tercer motor en el nodo.
+state4: el estado del cuarto motor en el nodo.
+v: El voltaje del nodo.
+El método put_node_states_rpm() se utiliza para actualizar las 
+RPM de un nodo en la lista node_states. El método toma los siguientes argumentos:
+
+id: el ID del nodo.
+rpm1: Las RPM del primer motor en el nodo.
+rpm2: Las RPM del segundo motor en el nodo.
+rpm3: Las RPM del tercer motor en el nodo.
+rpm4: Las RPM del cuarto motor en el nodo.
+El método put_node_states_currency_voltage() se utiliza para actualizar 
+la moneda y el voltaje de un nodo en la lista node_states. El método toma los siguientes argumentos:
+
+id: el ID del nodo.
+corr1: la moneda del primer motor en el nodo.
+corr2: la moneda del segundo motor en el nodo.
+corr3: La moneda del tercer motor en el nodo.
+corr4: La moneda del cuarto motor en el nodo.
+v: El voltaje del nodo.
+El método parse_meteor() se utiliza para analizar los datos meteorológicos 
+del objeto StateBuffer. El método devuelve un diccionario que contiene las siguientes claves:
+
+comando: El comando que se enviará al cliente.
+humedad: El nivel de humedad.
+velViento: La velocidad del viento.
+dirViento: La dirección del viento.
+temperatura: La temperatura.
+puntoDeRocio: La presión.
+El método parse_node() se utiliza para analizar los datos del 
+nodo del objeto StateBuffer. El método devuelve un diccionario que contiene las siguientes claves:
+
+comando: El comando que se enviará al cliente.
+nodos: una lista de diccionarios, cada uno de los cuales representa el estado de un nodo en el bus CAN.
+"""
 class StateBuffer:
     def __init__(self,
                  hum: int = 0,
@@ -181,6 +269,32 @@ class StateBuffer:
     def parse_node(self) -> dict:
         return self.node_states
 
+"""
+La clase Parser se utiliza para analizar mensajes
+CAN entrantes y actualizar la variable global
+mod_buffer en consecuencia.
+
+La clase toma dos argumentos:
+
+id: el ID de arbitraje del mensaje.
+datos: Los bytes de datos del mensaje.
+La clase primero verifica el ID de arbitraje del mensaje
+para determinar qué tipo de mensaje es. Si el ID de arbitraje
+es uno de los siguientes, la clase actualiza el campo correspondiente en el objeto mod_buffer:
+
+130313: Humedad
+130306: Velocidad y dirección del viento
+65269: Temperatura
+1000: presión
+64071: Estados de nodo (prueba)
+64837: Estados de nodo (RPM)
+64838: Estados de los nodos (moneda y voltaje)
+Si el ID de arbitraje es 10021, la clase devuelve una tupla
+que contiene la cadena 'new_board' y el ID del nuevo tablero.
+
+De lo contrario, la clase devuelve una tupla que contiene
+la cadena 'state_buffer' y el objeto mod_buffer actualizado.
+"""
 class Parser:
     def __init__(self, id: int, data: bytearray) -> None:
         self.id = id
@@ -256,7 +370,35 @@ class Parser:
             return 'new_board', int.from_bytes(self.data[0:2], byteorder='little')
             
         return "state_buffer", mod_buffer
-    
+
+"""
+La clase BoardParams se utiliza para almacenar los parámetros de una placa
+específica en el bus CAN. La clase tiene los siguientes atributos:
+
+board_id: El ID del tablero.
+board_id_bytes: el ID de la placa como bytearray.
+m1_rpm: Las RPM deseadas para el motor 1 en el tablero.
+m2_rpm: Las RPM deseadas para el motor 2 en el tablero.
+m3_rpm: Las RPM deseadas para el motor 3 en el tablero.
+m4_rpm: Las RPM deseadas para el motor 4 en el tablero.
+
+El método __init__() se utiliza para inicializar el objeto BoardParams. 
+El método toma los siguientes argumentos:
+
+board_id: El ID del tablero.
+m1_rpm: Las RPM deseadas para el motor 1 en el tablero.
+m2_rpm: Las RPM deseadas para el motor 2 en el tablero.
+m3_rpm: Las RPM deseadas para el motor 3 en el tablero.
+m4_rpm: Las RPM deseadas para el motor 4 en el tablero.
+El atributo board_id_bytes se crea convirtiendo el atributo board_id en un bytearray 
+utilizando el método to_bytes(). El método to_bytes() toma los siguientes argumentos:
+
+longitud: La longitud del bytearray.
+byteorder: el orden de bytes de la matriz de bytes.
+El argumento del orden de bytes puede ser "pequeño" o "grande". 
+En este caso, el argumento de orden de bytes se establece en
+"pequeño" porque el bus CAN utiliza ordenación de bytes little-endian.
+"""
 class BoardParams:
     def __init__(self,
                  board_id: int,
