@@ -307,4 +307,3 @@ def write_on_bus_factory_reset(bus_config: CanPortConfig,
                 except can.CanError:
                     log('[error] Mensaje no enviado : can error', 'write_on_bus_factory_reset')
                     print('[error] Mensaje no enviado : write_on_bus_factory_reset')
-
