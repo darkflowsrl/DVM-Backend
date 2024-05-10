@@ -88,6 +88,11 @@ if __name__ == "__main__":
             enviar_json(testing)
         elif opcion == "2":
             normal["nodo"] = int(input("Ingrese el número de nodo: "))
+            normal["rpm1"] = int(input("Ingrese el valor de rpm1: "))
+            normal["rpm2"] = int(input("Ingrese el valor de rpm2: "))
+            normal["rpm3"] = int(input("Ingrese el valor de rpm3: "))
+            normal["rpm4"] = int(input("Ingrese el valor de rpm4: "))
+            
             enviar_json(normal)
         elif opcion == "3":
             enviar_json(configuracion_inicial)
@@ -102,3 +107,4 @@ if __name__ == "__main__":
         else:
             print("Opción inválida. Intente de nuevo.")
             
+
