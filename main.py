@@ -144,7 +144,7 @@ def send_data_over_socket() -> None:
     while True:
         if len(clients) != 0:
             for idx, client in enumerate(clients):
-                try:
+                try: 
                     conn = client['conn']
                     data_meteor = json.dumps(buffer.parse_meteor()).encode()
                     data_node_data = json.dumps(buffer.parse_node()).encode()

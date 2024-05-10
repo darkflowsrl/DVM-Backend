@@ -1,12 +1,16 @@
 #!/bin/bash
 
+timedatectl set-ntp true
+
+apt -y update
+apt -y upgrade
+apt -y dist-upgrade
 apt install -y software-properties-common
-apt install -y dist-upgrade
 apt install -y python3-pip --fix-missing
 apt install -y htop
 apt install -y nodm
 
-VERSION="1.5.0"
+VERSION="1.8.0"
 
 # /etc/defaults/nodm
 # NODM_ENABLED=true
@@ -29,10 +33,12 @@ echo "ip link set can0 up type can bitrate 250000" >> ~/.bashrc
 echo "nohup python3 /root/Darkflow-HMI-Backend/main.py > /dev/null 2>1&" >> ~/.bashrc
 echo "startx /root/dvm-app-front-$VERSION.AppImage --no-sandbox -- -nocursor" >> ~/.bashrc
 
+echo "ip link set can0 up type can bitrate 250000" >> ~/.bashrc
+
 cd /root
 
 wget https://github.com/SegarraFacundo/DVM-front/releases/download/v$VERSION/dvm-app-front-$VERSION.AppImage
-chmod +x /root/Darkflow-HMI-Backend/dvm-app-front-$VERSION.AppImage
+chmod +x /root/dvm-app-front-$VERSION.AppImage
 
 git clone https://github.com/darkflowsrl/Darkflow-HMI-Backend.git
 
