@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# /etc/defaults/nodm
+# NODM_ENABLED=true
+# NODM_USER=root
+# nano /etc/systemd/system/getty.target.wants/getty\@tty1.service
+# exec: ExecStart=-/sbin/agetty --noissue --autologin myusername %I $TERM
+#echo "startx /usr/bin/chromium --no-sandbox --noerrdialogs --disable-infobars --start-fullscreen --window-size=1270,790  --kiosk https://www.google.com -- -nocursor -dpms -s off -s noblank" >> ~/.bashrc
+
 timedatectl set-ntp true
 
 apt -y update
@@ -11,15 +18,13 @@ apt install -y htop
 apt install -y nodm
 
 VERSION="1.8.0"
+SERVICE_FILE="/etc/systemd/system/getty.target.wants/getty@tty1.service"
+NEW_EXECSTART="ExecStart=-/sbin/agetty --noissue --autologin myusername %I \$TERM"
 
-# /etc/defaults/nodm
-# NODM_ENABLED=true
-# NODM_USER=root
+# Backup del servicio
+cp "$SERVICE_FILE" "$SERVICE_FILE.bak"
 
-# nano /etc/systemd/system/getty.target.wants/getty\@tty1.service
-# exec: ExecStart=-/sbin/agetty --noissue --autologin myusername %I $TERM
-
-#echo "startx /usr/bin/chromium --no-sandbox --noerrdialogs --disable-infobars --start-fullscreen --window-size=1270,790  --kiosk https://www.google.com -- -nocursor -dpms -s off -s noblank" >> ~/.bashrc
+sed -i "s|^ExecStart=.*|$NEW_EXECSTART|" "$SERVICE_FILE"
 
 echo "sleep 5" >> ~/.bashrc
 
