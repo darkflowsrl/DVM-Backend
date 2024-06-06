@@ -50,24 +50,30 @@ Protocolo de testing:
     nodos :  [1030, 1230, 1150]
 }
 
-Protocolo de funcionamiento normal:
+Nodo:
 {
-    command : "normal",
     nodo : 1030,
     rpm1 : 2000,
     rpm2 : 2500,
     rpm3 : 1000,
     rpm4 : 0,
 }
-, 'send_data_over_node'
+
+Protocolo de funcionamiento normal:
+{
+    command : "normal",
+    nodos : List[Nodo]
+}
+
 Protocolo de datos meteorológicos:
 {
-    command : "datosMeteorologicos",
-    humedad : 78,
-    velViento : 34,
-    dirViento : 180,
-    temperatura : 25,
-    puntoDeRocio : 25
+    "command" : "datosMeteorologicos",
+    "humedad" : Float,
+    "velViento" : Float,
+    "dirViento" : Float,
+    "temperatura" : Float,
+    "puntoDeRocio" : Float,
+    "presionAtmosferica" : Float
 }
 
 Protocolo de estado general del nodo:

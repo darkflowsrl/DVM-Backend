@@ -159,12 +159,14 @@ class StateBuffer:
                  wind_dir: int = 0,
                  wind_speed: int = 0,
                  temp: int = 0,
-                 pr: int = 0) -> None:
+                 pr: int = 0,
+                 atm_pressure: float = 0) -> None:
         self.hum: int = hum
         self.wind_dir: int = wind_dir
         self.wind_speed: int = wind_speed
         self.temp: int = temp
         self.pr: int = pr
+        self.atm_pressure: float = atm_pressure
         self.node_states: dict = {"command" : "estadoGeneralNodos",
                                   "nodos" : []}
         
@@ -263,7 +265,8 @@ class StateBuffer:
             "velViento" : self.wind_speed,
             "dirViento" : self.wind_dir,
             "temperatura" : self.temp,
-            "puntoDeRocio" : self.pr
+            "puntoDeRocio" : self.pr,
+            "presionAtmosferica" : self.atm_pressure
         }
         
     def parse_node(self) -> dict:
@@ -365,6 +368,9 @@ class Parser:
                                             corr3,
                                             corr4,
                                             voltaje)
+            
+        elif self.id == 130314:
+            mod_buffer.atm_pressure = self.data_int * 0.1
 
         elif self.id == 10021:
             return 'new_board', int.from_bytes(self.data[0:2], byteorder='little')
