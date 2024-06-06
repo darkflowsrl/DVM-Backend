@@ -31,6 +31,8 @@ class Ids:
     
     ask_scan: int = 10020
     
+    get_interface_version: int = 10050
+    
     rename: int = 10030
     factory_reset: int = 10040
 
@@ -195,6 +197,23 @@ def write_on_bus_take_rpm(bus_config: CanPortConfig,
                 except can.CanError:
                     log('[error] Mensaje no enviado : can error', 'write_on_bus_take_rpm')
                     print('[error] Mensaje no enviado : write_on_bus_take_rpm')
+
+def write_on_bus_get_interface_version(bus_config: CanPortConfig) -> None:
+    msg = can.Message(arbitration_id=Ids.get_interface_version,
+                                  data=[0, 0, 0, 0, 0, 0, 0, 0],
+                                  is_extended_id=True)
+
+    with can.interface.Bus(channel=bus_config.channel,
+                               interface=bus_config.interface,
+                               bitrate=bus_config.baudrate,
+                               receive_own_messages=True) as bus:
+                try:
+                    bus.send(msg)
+                    # print('[ok] Mensaje enviado : write_on_bus_take_rpm')
+                    log(f"Mensaje Enviado: ", 'write_on_bus_get_interface_version')
+                except can.CanError:
+                    log('[error] Mensaje no enviado : can error', 'write_on_bus_get_interface_version')
+                    print('[error] Mensaje no enviado : write_on_bus_get_interface_version')
 
 def write_on_bus_all_config(bus_config: CanPortConfig,
                             node: NodeConfiguration) -> None:    

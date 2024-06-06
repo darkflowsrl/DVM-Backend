@@ -8,6 +8,7 @@ from src.can_bus import (
     write_scan_boards,
     write_on_bus_rename,
     write_on_bus_factory_reset,
+    write_on_bus_get_interface_version,
     buffer,
     port_config
     )
@@ -124,6 +125,25 @@ def get_rmp() -> None:
             print(f'Exception at: get_rpm -> {str(e)}')
                             
 def _listen_for_incomming_clients() -> None:
+    """
+    Initialization:
+        The function retrieves the sock object which represents the server socket.
+        It retrieves the clients list which contains information about connected clients.
+        It sets a timeout of 10 seconds for accepting connections.
+    
+    Listening Loop:
+        The function enters an infinite loop to continuously listen for incoming connections.
+        Inside the loop, it attempts to accept a new connection using sock.accept().
+        If a connection is accepted, it retrieves the client's connection object (conn) and address (addr).
+        The function logs a message indicating that a new client has connected.
+        It creates a new dictionary client containing the connection object and address.
+        It appends the client dictionary to the clients list.
+        The function creates a new thread called task_write_into_node to handle communication with the connected client.
+        The thread is started with the client dictionary as an argument.
+    
+    Timeout Handling:
+        If a socket.timeout exception occurs, the loop continues without accepting a connection.
+    """
     global sock
     global clients
     
@@ -145,6 +165,31 @@ def _listen_for_incomming_clients() -> None:
             pass
     
 def send_data_over_socket() -> None:
+    """
+    Initialization:
+        The function retrieves the clients list which contains information about connected clients.
+        It enters an infinite loop to continuously send data to clients.
+    
+    Client Loop:
+        The function iterates through the clients list.
+        For each client, it attempts to send data using the client's conn (connection) object.
+        The data to be sent is retrieved from the buffer object using the parse_meteor and parse_node methods. These methods return dictionaries containing meteorological data and node data, respectively.
+        The data is then converted to JSON format using json.dumps and encoded using encode.
+        The encoded data is sent to the client using conn.sendall.
+        The function sleeps for 1 second after sending data to each client.
+    
+    Error Handling:
+        The function includes a try-except block to handle any exceptions that may occur during data sending.
+        If a ConnectionError occurs, the client is removed from the clients list and the error message is logged.
+        If an OSError occurs, the error is simply logged and the loop continues.
+    
+    Loop Termination:
+        The loop continues until all clients have disconnected or an error occurs.
+        Additional Notes:
+        This function relies on the buffer object and the parse_meteor and parse_node methods defined in other files.
+        The function uses the log function from the src.log module for logging messages.
+        The function uses threads to handle communication with multiple clients concurrently.
+    """
     global clients
     
     while True:
@@ -169,7 +214,31 @@ def send_data_over_socket() -> None:
                     pass
             
 def send_data_over_node(client) -> None:
+    """
+    Initialization:
+        It retrieves the node_list which contains the IDs of all connected nodes.
+        It sends a message to the bus to get the interface version of the connected boards.
+        
+    Main Loop:
+        The function enters an infinite loop to continuously receive and process data from the client.
+        Inside the loop, it attempts to receive data from the client using conn.recv(1024*10).
+        If data is received, it is parsed as JSON using json.loads(data).
+        The function then extracts the command field from the received data.
+    
+    Command Handling:
+        Based on the received command, the function performs different actions:
+        testError: Raises an exception to test error handling.
+        testing: Iterates through the nodos list in the received data and sends a test message to each node using write_on_bus_test.
+        normal: Iterates through the nodos list and sends RPM values to each node using write_on_bus_all_rpm.
+        setConfiguracion: Iterates through the configuraciones list and sends configuration parameters to each node using write_on_bus_all_config.
+        scan: Sends a scan message to the bus using write_scan_boards, waits for 2 seconds, retrieves the list of available boards from available_boards_from_scan, updates the node_list, and sends a response to the client with the list of available boards.
+        renombrar: Sends a rename message to the bus using write_on_bus_rename with the old and new node IDs.
+        restablecerFabrica: Sends a factory reset message to the bus using write_on_bus_factory_reset with the node ID.
+    """
     global node_list
+    
+    # Get board version
+    write_on_bus_get_interface_version(bus_config=port_config)
     
     while True:
         try:

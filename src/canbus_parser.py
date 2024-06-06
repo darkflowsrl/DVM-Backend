@@ -167,6 +167,7 @@ class StateBuffer:
         self.temp: int = temp
         self.pr: int = pr
         self.atm_pressure: float = atm_pressure
+        self.interface_version: int = 0
         self.node_states: dict = {"command" : "estadoGeneralNodos",
                                   "nodos" : []}
         
@@ -266,7 +267,8 @@ class StateBuffer:
             "dirViento" : self.wind_dir,
             "temperatura" : self.temp,
             "puntoDeRocio" : self.pr,
-            "presionAtmosferica" : self.atm_pressure
+            "presionAtmosferica" : self.atm_pressure,
+            "version" : self.interface_version
         }
         
     def parse_node(self) -> dict:
@@ -374,6 +376,9 @@ class Parser:
 
         elif self.id == 10021:
             return 'new_board', int.from_bytes(self.data[0:2], byteorder='little')
+        
+        elif self.id == 10051:
+            mod_buffer.interface_version = int(self.data[0])
             
         return "state_buffer", mod_buffer
 
