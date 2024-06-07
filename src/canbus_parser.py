@@ -267,7 +267,7 @@ class StateBuffer:
             "dirViento" : self.wind_dir,
             "temperatura" : self.temp,
             "puntoDeRocio" : self.pr,
-            "presionAtmosferica" : self.atm_pressure,
+            "presionAtmosferica" : float(self.atm_pressure, 1),
             "version" : self.interface_version
         }
         
