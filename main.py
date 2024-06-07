@@ -262,13 +262,36 @@ def send_data_over_node(client) -> None:
             elif command == "normal":
                 for nodo in data["nodos"]:
                     # Smooth start
-                    time.sleep(1)
                     write_on_bus_all_rpm(bus_config=port_config,
                                             params=BoardParams(nodo["nodo"],
                                                         nodo["rpm1"],
+                                                        0,
+                                                        0,
+                                                        0))
+                    time.sleep(0.7)
+                    
+                    # Smooth stop
+                    write_on_bus_all_rpm(bus_config=port_config,
+                                            params=BoardParams(nodo["nodo"],
+                                                        0,
                                                         nodo["rpm2"],
+                                                        0,
+                                                        0))
+                    time.sleep(0.7)
+                    write_on_bus_all_rpm(bus_config=port_config,
+                                            params=BoardParams(nodo["nodo"],
+                                                        0,
+                                                        0,
                                                         nodo["rpm3"],
+                                                        0))
+                    time.sleep(0.7)
+                    write_on_bus_all_rpm(bus_config=port_config,
+                                            params=BoardParams(nodo["nodo"],
+                                                        0,
+                                                        0,
+                                                        0,
                                                         nodo["rpm4"]))
+                    time.sleep(0.7)
                         
             elif command == "setConfiguracion":
                 for nodo in data["configuraciones"]:
