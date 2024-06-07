@@ -27,7 +27,7 @@ Los siguientes comandos de linux sirven para levantar la interfaz can0
 desde el hardware.
 """
 IPS: List[str] = ['localhost', '192.168.1.62']
-HOST: str = IPS[1]
+HOST: str = IPS[0]
 PORT: int = 8080    
 FAMILY: int = socket.AF_INET
 TYPE: int = socket.SOCK_STREAM
@@ -261,14 +261,14 @@ def send_data_over_node(client) -> None:
                     
             elif command == "normal":
                 for nodo in data["nodos"]:
+                    # Smooth start
+                    time.sleep(1)
                     write_on_bus_all_rpm(bus_config=port_config,
                                             params=BoardParams(nodo["nodo"],
                                                         nodo["rpm1"],
                                                         nodo["rpm2"],
                                                         nodo["rpm3"],
                                                         nodo["rpm4"]))
-                    # Smooth start
-                    time.sleep(0.5)
                         
             elif command == "setConfiguracion":
                 for nodo in data["configuraciones"]:
