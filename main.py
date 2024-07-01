@@ -33,10 +33,10 @@ FAMILY: int = socket.AF_INET
 TYPE: int = socket.SOCK_STREAM
 
 LAST_RPM: dict[str, int] = {
-    "rpm1" : 0,
-    "rpm2" : 0,
-    "rpm3" : 0,
-    "rpm4" : 0
+    "rpm1": 0,
+    "rpm2": 0,
+    "rpm3": 0,
+    "rpm4": 0
 }
 
 sock = socket.socket(FAMILY, TYPE)
