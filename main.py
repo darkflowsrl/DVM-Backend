@@ -32,6 +32,13 @@ PORT: int = 8080
 FAMILY: int = socket.AF_INET
 TYPE: int = socket.SOCK_STREAM
 
+LAST_RPM: dict[str, int] = {
+    "rpm1" : 0,
+    "rpm2" : 0,
+    "rpm3" : 0,
+    "rpm4" : 0
+}
+
 sock = socket.socket(FAMILY, TYPE)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind((HOST, PORT))
@@ -260,39 +267,51 @@ def send_data_over_node(client) -> None:
                                     params=BoardTest(node))
                     
             elif command == "normal":
+                if nodo['rpm1'] == 0 and nodo['rpm2'] == 0 and nodo['rpm3'] == 0 and nodo['rpm4'] == 0:
+                    write_on_bus_all_rpm(bus_config=port_config,
+                                            params=BoardParams(nodo["nodo"],
+                                                        0,
+                                                        0,
+                                                        0,
+                                                        0))
+                    continue
+                
                 for nodo in data["nodos"]:
                     # Smooth start
                     write_on_bus_all_rpm(bus_config=port_config,
                                             params=BoardParams(nodo["nodo"],
                                                         nodo["rpm1"],
-                                                        0,
-                                                        0,
-                                                        0))
-                    time.sleep(0.7)
+                                                        LAST_RPM['rpm2'],
+                                                        LAST_RPM['rpm3'],
+                                                        LAST_RPM['rpm4']))
+                    time.sleep(0.1)
                     
                     # Smooth stop
                     write_on_bus_all_rpm(bus_config=port_config,
                                             params=BoardParams(nodo["nodo"],
                                                         nodo["rpm1"],
                                                         nodo["rpm2"],
-                                                        0,
-                                                        0))
-                    time.sleep(0.7)
+                                                        LAST_RPM['rpm3'],
+                                                        LAST_RPM['rpm4']))
+                    time.sleep(0.1)
                     write_on_bus_all_rpm(bus_config=port_config,
                                             params=BoardParams(nodo["nodo"],
                                                         nodo["rpm1"],
                                                         nodo["rpm2"],
                                                         nodo["rpm3"],
-                                                        0))
-                    time.sleep(0.7)
+                                                        LAST_RPM['rpm4']))
+                    time.sleep(0.1)
                     write_on_bus_all_rpm(bus_config=port_config,
                                             params=BoardParams(nodo["nodo"],
                                                         nodo["rpm1"],
                                                         nodo["rpm2"],
                                                         nodo["rpm3"],
                                                         nodo["rpm4"]))
-                    time.sleep(0.7)
-                        
+                LAST_RPM['rpm1']
+                LAST_RPM['rpm2']
+                LAST_RPM['rpm3']
+                LAST_RPM['rpm4']
+                
             elif command == "setConfiguracion":
                 for nodo in data["configuraciones"]:
                     nodo_: NodeConfiguration = NodeConfiguration(nodo['nodo'],
