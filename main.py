@@ -267,16 +267,14 @@ def send_data_over_node(client) -> None:
                                     params=BoardTest(node))
                     
             elif command == "normal":
-                if nodo['rpm1'] == 0 and nodo['rpm2'] == 0 and nodo['rpm3'] == 0 and nodo['rpm4'] == 0:
-                    write_on_bus_all_rpm(bus_config=port_config,
-                                            params=BoardParams(nodo["nodo"],
-                                                        0,
-                                                        0,
-                                                        0,
-                                                        0))
-                    continue
-                
                 for nodo in data["nodos"]:
+                    if nodo['rpm1'] == 0 and nodo['rpm2'] == 0 and nodo['rpm3'] == 0 and nodo['rpm4'] == 0:
+                        write_on_bus_all_rpm(bus_config=port_config,
+                                                params=BoardParams(nodo["nodo"],
+                                                            0,
+                                                            0,
+                                                            0,
+                                                            0))
                     # Smooth start
                     write_on_bus_all_rpm(bus_config=port_config,
                                             params=BoardParams(nodo["nodo"],
