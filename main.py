@@ -15,7 +15,7 @@ from src.can_bus import (
 from src.canbus_parser import *
 from src.log import log
 from threading import Thread
-from typing import List
+from typing import List, Dict
 from time import sleep
 import sys
 import socket
@@ -32,7 +32,7 @@ PORT: int = 8080
 FAMILY: int = socket.AF_INET
 TYPE: int = socket.SOCK_STREAM
 
-LAST_RPM: dict[str, int] = {
+LAST_RPM: Dict[str, int] = {
     "rpm1": 0,
     "rpm2": 0,
     "rpm3": 0,
