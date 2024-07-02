@@ -275,7 +275,7 @@ def send_data_over_node(client) -> None:
                                                             0,
                                                             0,
                                                             0))
-                        break
+                        continue
                     # Smooth start
                     write_on_bus_all_rpm(bus_config=port_config,
                                             params=BoardParams(nodo["nodo"],
