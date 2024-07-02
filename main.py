@@ -275,6 +275,7 @@ def send_data_over_node(client) -> None:
                                                             0,
                                                             0,
                                                             0))
+                        break
                     # Smooth start
                     write_on_bus_all_rpm(bus_config=port_config,
                                             params=BoardParams(nodo["nodo"],
@@ -305,10 +306,10 @@ def send_data_over_node(client) -> None:
                                                         nodo["rpm2"],
                                                         nodo["rpm3"],
                                                         nodo["rpm4"]))
-                LAST_RPM['rpm1']
-                LAST_RPM['rpm2']
-                LAST_RPM['rpm3']
-                LAST_RPM['rpm4']
+                LAST_RPM['rpm1'] = nodo['rpm1']
+                LAST_RPM['rpm2'] = nodo['rpm2']
+                LAST_RPM['rpm3'] = nodo['rpm3']
+                LAST_RPM['rpm4'] = nodo['rpm4']
                 
             elif command == "setConfiguracion":
                 for nodo in data["configuraciones"]:
