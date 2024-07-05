@@ -448,11 +448,9 @@ class Parser:
             engine_number: int = self.data[2]
             caudal: float = int.from_bytes(self.data[3:5], byteorder='little') * 0.1
 
-            mod_buffer.update_caudal(board_id,
-                                    caudal,
-                                    caudal,
-                                    caudal,
-                                    caudal)
+            mod_buffer.update_caudal(board_id=board_id,
+                                     engine_number=engine_number,
+                                     caudal=caudal)
             
         return "state_buffer", mod_buffer
 
