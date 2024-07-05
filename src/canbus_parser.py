@@ -168,6 +168,26 @@ class StateBuffer:
         self.pr: int = pr
         self.atm_pressure: float = atm_pressure
         self.interface_version: int = 0
+        self.gps_state: dict = {
+            "nroSatelites" : 0,
+            "velocicidad" : 0,
+            "latitud" : 0,
+            "longitud" : 0,
+            "altura" : 0
+        }
+        
+        self.caudalimetro: dict = {
+            "boards" : [
+                {
+                    "board_id" : -1,
+                    "caudalEngine0" : 0,
+                    "caudalEngine1" : 0,
+                    "caudalEngine2" : 0,
+                    "caudalEngine3" : 0 
+                }
+            ]
+        }
+        
         self.node_states: dict = {"command" : "estadoGeneralNodos",
                                   "nodos" : []}
         
@@ -268,12 +288,40 @@ class StateBuffer:
             "temperatura" : self.temp,
             "puntoDeRocio" : self.pr,
             "presionAtmosferica" : round(self.atm_pressure, 1),
-            "version" : self.interface_version
+            "version" : self.interface_version,
+            "gpsInfo" : self.gps_state,
+            "caudalInfo" : self.caudalimetro
         }
         
     def parse_node(self) -> dict:
         return self.node_states
-
+    
+    def update_caudal(self, board_id: int,
+                      engine_number: int,
+                      caudal: float) -> None:
+        for board in self.caudalimetro["boards"]:
+            if board["board_id"] == board_id:
+                board["caudalEngine" + str(engine_number)] = caudal
+                return
+        
+        self.caudalimetro["boards"].append(
+            {
+                "board_id" : board_id,
+                "caudalEngine0" : 0,
+                "caudalEngine1" : 0,
+                "caudalEngine2" : 0,
+                "caudalEngine3" : 0
+            }
+        )
+        
+        return
+    
+    def get_caudal(self, board_id: int) -> dict:
+        for board in self.caudalimetro["boards"]:
+            if board["board_id"] == board_id:
+                return board
+        return {}
+    
 """
 La clase Parser se utiliza para analizar mensajes
 CAN entrantes y actualizar la variable global
@@ -379,6 +427,32 @@ class Parser:
         
         elif self.id == 10051:
             mod_buffer.interface_version = int(self.data[0])
+            
+        elif self.id == 129026:
+            mod_buffer.gps_state["velocicidad"] = self.data_int * 0.01
+
+        elif self.id == 129029:
+            mod_buffer.gps_state["latitud"] = self.data_int * 1e-6
+            
+        elif self.id == 129030:
+            mod_buffer.gps_state["longitud"] = self.data_int * 1e-6
+            
+        elif self.id == 129031:
+            mod_buffer.gps_state["altura"] = self.data_int * 1e-6
+            
+        elif self.id == 129031:
+            mod_buffer.gps_state["nroSatelites"] = self.data_int
+            
+        elif self.id == 50432:
+            board_id: int = int.from_bytes(self.data[0:2], byteorder='little')
+            engine_number: int = self.data[2]
+            caudal: float = int.from_bytes(self.data[3:5], byteorder='little') * 0.1
+
+            mod_buffer.update_caudal(board_id,
+                                    caudal,
+                                    caudal,
+                                    caudal,
+                                    caudal)
             
         return "state_buffer", mod_buffer
 

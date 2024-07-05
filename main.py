@@ -9,6 +9,7 @@ from src.can_bus import (
     write_on_bus_rename,
     write_on_bus_factory_reset,
     write_on_bus_get_interface_version,
+    write_on_ask_caudalimetro,
     buffer,
     port_config
     )
@@ -73,15 +74,40 @@ Protocolo de funcionamiento normal:
     nodos : List[Nodo]
 }
 
+GPSData
+{
+    nroSatelites : Int,
+    velocicidad : Float,
+    latitud : Float,
+    longitud : Float,
+    altura : Float
+}
+
+caudalBoards
+{
+    board_id : Int,
+    caudalEngine0 : Float,
+    caudalEngine1 : Float,
+    caudalEngine2 : Float,
+    caudalEngine3 : Float
+}
+
+caudalData
+{
+    boards : List[caudalBoards]
+}
+
 Protocolo de datos meteorológicos:
 {
-    "command" : "datosMeteorologicos",
-    "humedad" : Float,
-    "velViento" : Float,
-    "dirViento" : Float,
-    "temperatura" : Float,
-    "puntoDeRocio" : Float,
-    "presionAtmosferica" : Float
+    command : "datosMeteorologicos",
+    humedad : Float,
+    velViento : Float,
+    dirViento : Float,
+    temperatura : Float,
+    puntoDeRocio : Float,
+    presionAtmosferica : Float
+    gpsInfo : GPSData,
+    caudalInfo : caudalData
 }
 
 Protocolo de estado general del nodo:
@@ -110,6 +136,7 @@ Protocolo de estado general del nodo:
 
 node_list: list = []
 
+
 def get_status() -> None:
     while True:
         try:
@@ -118,6 +145,15 @@ def get_status() -> None:
             for node in node_list:
                 write_on_bus_take_status(bus_config=port_config,
                                 params=BoardTest(node))
+                
+            """
+            With the purpose of not open another Thread
+            I will create a new process here.
+            TEST THIS
+            """
+            write_on_ask_caudalimetro(bus_config=port_config,
+                                      boards=node_list)
+            
         except Exception as e:
             print(f'Exception at: get_status -> {str(e)}')
                         

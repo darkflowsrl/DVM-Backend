@@ -35,6 +35,8 @@ class Ids:
     
     rename: int = 10030
     factory_reset: int = 10040
+    
+    get_caudalimetro: int = 50431
 
 def clean_available_boards_from_scan() -> None:
     global available_boards_from_scan
@@ -326,3 +328,26 @@ def write_on_bus_factory_reset(bus_config: CanPortConfig,
                 except can.CanError:
                     log('[error] Mensaje no enviado : can error', 'write_on_bus_factory_reset')
                     print('[error] Mensaje no enviado : write_on_bus_factory_reset')
+
+def write_on_ask_caudalimetro(bus_config: CanPortConfig,
+                          boards: List[int]) -> None:
+    for board in boards:
+        board_bytes: bytes = board.to_bytes(2, 'little')
+        for engine in range(0, 4):
+            msg = can.Message(arbitration_id=Ids.factory_reset,
+                                        data=[board_bytes[0],
+                                                board_bytes,
+                                                engine,
+                                                0, 0, 0, 0, 0],
+                                        is_extended_id=True)
+
+            with can.interface.Bus(channel=bus_config.channel,
+                                    interface=bus_config.interface,
+                                    bitrate=bus_config.baudrate,
+                                    receive_own_messages=True) as bus:
+                        try:
+                            bus.send(msg)
+                        except can.CanError:
+                            log('[error] Mensaje no enviado : can error', 'write_on_bus_factory_reset')
+                            print('[error] Mensaje no enviado : write_on_bus_factory_reset')
+
