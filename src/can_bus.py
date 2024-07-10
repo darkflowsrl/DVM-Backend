@@ -334,7 +334,7 @@ def write_on_ask_caudalimetro(bus_config: CanPortConfig,
     for board in boards:
         board_bytes: bytes = board.to_bytes(2, 'little')
         for engine in range(0, 4):
-            msg = can.Message(arbitration_id=Ids.factory_reset,
+            msg = can.Message(arbitration_id=Ids.get_caudalimetro,
                                         data=[board_bytes[0],
                                                 board_bytes,
                                                 engine,
