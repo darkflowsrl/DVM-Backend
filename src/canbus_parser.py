@@ -440,7 +440,7 @@ class Parser:
         elif self.id == 129031:
             mod_buffer.gps_state["altura"] = self.data_int * 1e-6
             
-        elif self.id == 129031:
+        elif self.id == 129032:
             mod_buffer.gps_state["nroSatelites"] = self.data_int
             
         elif self.id == 50432:
