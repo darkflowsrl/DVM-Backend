@@ -7,6 +7,16 @@
 # exec: ExecStart=-/sbin/agetty --noissue --autologin myusername %I $TERM
 # echo "startx /usr/bin/chromium --no-sandbox --noerrdialogs --disable-infobars --start-fullscreen --window-size=1270,790  --kiosk https://www.google.com -- -nocursor -dpms -s off -s noblank" >> ~/.bashrc
 
+
+
+
+#override config
+#   systemctl edit getty@tty1
+#   [Service]
+#   ExecStart=
+#   ExecStart=-/sbin/agetty --autologin root --nuclear %I $TERM
+
+
 timedatectl set-ntp true
 
 #apt -y update
@@ -51,4 +61,6 @@ cd Darkflow-HMI-Backend
 pip3 install -r /root/Darkflow-HMI-Backend/requirements.txt
 
 systemctl set-default multi-user.target
+
+systemctl enable getty@tty1.servie
 
