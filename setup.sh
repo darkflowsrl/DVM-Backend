@@ -9,14 +9,14 @@
 
 timedatectl set-ntp true
 
-apt -y update
-apt -y upgrade
-apt install -y software-properties-common
+#apt -y update
+#apt -y upgrade
+#apt install -y software-properties-common
 apt install -y python3-pip --fix-missing
 apt install -y htop
 apt install -y nodm
 
-VERSION="1.8.0"
+VERSION="1.16.0"
 SERVICE_FILE="/etc/systemd/system/getty.target.wants/getty@tty1.service"
 NEW_EXECSTART="ExecStart=-/sbin/agetty --noissue --autologin root --noclear %I $TERM"
 
