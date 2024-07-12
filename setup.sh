@@ -11,7 +11,6 @@ timedatectl set-ntp true
 
 apt -y update
 apt -y upgrade
-apt -y dist-upgrade
 apt install -y software-properties-common
 apt install -y python3-pip --fix-missing
 apt install -y htop
