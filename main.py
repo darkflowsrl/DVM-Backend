@@ -11,7 +11,8 @@ from src.can_bus import (
     write_on_bus_get_interface_version,
     write_on_ask_caudalimetro,
     buffer,
-    port_config
+    port_config,
+    BOARD_VERSION
     )
 from src.canbus_parser import *
 from src.log import log
@@ -33,6 +34,7 @@ PORT: int = 8080
 FAMILY: int = socket.AF_INET
 TYPE: int = socket.SOCK_STREAM
 VERSION: str = '1.2.0'
+
 
 LAST_RPM: Dict[str, int] = {
     "rpm1": 0,
@@ -389,7 +391,8 @@ def send_data_over_node(client) -> None:
 
             elif command == 'version':
                 data: dict = {
-                    "version" : VERSION
+                    "version" : VERSION,
+                    "board_version" : BOARD_VERSION
                 }
                 
                 data = json.dumps(data).encode()

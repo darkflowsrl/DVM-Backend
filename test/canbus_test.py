@@ -9,7 +9,6 @@ from canbus import (reader_loop, write_on_bus_all_rpm, write_on_bus_test,
                    CanPortConfig, BoardParams, BoardTest, NodeConfiguration)
 
 class TestCanBus(unittest.TestCase):
-
     @patch('can.interface.Bus')
     def test_reader_loop(self, mock_bus):
         bus_config = CanPortConfig(interface="socketcan", channel="can0", baudrate=250000)

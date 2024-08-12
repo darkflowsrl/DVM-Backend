@@ -14,6 +14,7 @@ port_config: CanPortConfig = CanPortConfig(interface="socketcan",
 
 buffer = StateBuffer()
 available_boards_from_scan: list = []
+BOARD_VERSION: str = ''
 
 class Ids:
     set_individual_rpm: int = 64835
@@ -79,10 +80,15 @@ def load_message(msg: can.Message) -> None:
     type_, parsed = message_parser.parse(buffer)
     
     if type_ == 'new_board':
-        available_boards_from_scan.append(parsed)
+        try: 
+            BOARD_VERSION = f'{parsed[1]}.{parsed[2]}'
+        except:
+            pass
+        
+        available_boards_from_scan.append(parsed[0])
         available_boards_from_scan = list(set(available_boards_from_scan))
         
-        print(f'[DEBUG] New board -> {parsed}')
+        print(f'[DEBUG] New board -> {parsed[0]}')
         print(f'[DEBUG] Available boards -> {available_boards_from_scan}')
         
     elif type_ == 'state_buffer':

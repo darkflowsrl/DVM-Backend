@@ -423,7 +423,16 @@ class Parser:
             mod_buffer.atm_pressure = self.data_int * 0.1
 
         elif self.id == 10021:
-            return 'new_board', int.from_bytes(self.data[0:2], byteorder='little')
+            """
+            0:2 -> board id
+            2 -> int version
+            3 -> decimal version  
+            """
+            return ('new_board',
+            (int.from_bytes(self.data[0:2], byteorder='little'),
+            int.from_bytes(self.data[2], byteorder='little'),
+            int.from_bytes(self.data[3], byteorder='little'))
+            )
         
         elif self.id == 10051:
             mod_buffer.interface_version = int(self.data[0])
