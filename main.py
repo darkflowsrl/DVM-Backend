@@ -32,6 +32,7 @@ HOST: str = IPS[0]
 PORT: int = 8080    
 FAMILY: int = socket.AF_INET
 TYPE: int = socket.SOCK_STREAM
+VERSION: str = '1.2.0'
 
 LAST_RPM: Dict[str, int] = {
     "rpm1": 0,
@@ -385,7 +386,16 @@ def send_data_over_node(client) -> None:
             elif command == 'restablecerFabrica':
                 write_on_bus_factory_reset(bus_config=port_config,
                                            params=BoardParams(data['nodo'], 0, 0, 0, 0))
-        
+
+            elif command == 'version':
+                data: dict = {
+                    "version" : VERSION
+                }
+                
+                data = json.dumps(data).encode()
+                
+                conn.sendall(data)
+                
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             log(f'Error: {type(e).__name__}: {e}', 'send_data_over_node')
