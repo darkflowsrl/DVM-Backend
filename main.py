@@ -391,8 +391,9 @@ def send_data_over_node(client) -> None:
 
             elif command == 'version':
                 data: dict = {
+                    "command" : "rtaVersion",
                     "version" : VERSION,
-                    "board_version" : BOARD_VERSION
+                    "boardVersion" : BOARD_VERSION
                 }
                 
                 data = json.dumps(data).encode()
