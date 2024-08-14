@@ -47,13 +47,6 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo "Actualizando el sistema..."
-apt-get update && apt-get upgrade -y
-if [ $? -ne 0 ]; then
-    echo "Error durante la actualización del sistema."
-    exit 1
-fi
-
 BASHRC="/root/.bashrc"
 NEW_LINE="startx /root/dvm-app-front-$VERSION_FRONT.AppImage --no-sandbox -- -nocursor"
 

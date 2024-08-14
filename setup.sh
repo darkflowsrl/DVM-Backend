@@ -10,12 +10,13 @@
 
 
 
-#override config
+#   override config
 #   systemctl edit getty@tty1
 #   [Service]
 #   ExecStart=
 #   ExecStart=-/sbin/agetty --autologin root --nuclear %I $TERM
 
+VERSION="$1"
 
 timedatectl set-ntp true
 
@@ -26,7 +27,6 @@ apt install -y python3-pip --fix-missing
 apt install -y htop
 apt install -y nodm
 
-VERSION="1.16.0"
 SERVICE_FILE="/etc/systemd/system/getty.target.wants/getty@tty1.service"
 NEW_EXECSTART="ExecStart=-/sbin/agetty --noissue --autologin root --noclear %I $TERM"
 
@@ -46,13 +46,15 @@ echo "ip link set can0 up type can bitrate 250000" >> ~/.bashrc
 echo "ip link set can0 up type can bitrate 250000" >> ~/.bashrc
 echo "ip link set can0 up type can bitrate 250000" >> ~/.bashrc
 
+echo "./root/Darkflow-HMI-Backend/clean.sh > /dev/null 2>1&" >> ~/.bashrc
 echo "nohup python3 /root/Darkflow-HMI-Backend/main.py > /dev/null 2>1&" >> ~/.bashrc
 echo "startx /root/dvm-app-front-$VERSION.AppImage --no-sandbox -- -nocursor" >> ~/.bashrc
 
 cd /root
 
-wget https://github.com/SegarraFacundo/DVM-front/releases/download/v$VERSION/dvm-app-front-$VERSION.AppImage
+wget https://github.com/SegarraFacundo/DVM-front/releases/download/v$1/dvm-app-front-$VERSION.AppImage
 chmod +x /root/dvm-app-front-$VERSION.AppImage
+chmod +x /root/Darkflow-HMI-Backend/clean.sh 
 
 git clone https://github.com/darkflowsrl/Darkflow-HMI-Backend.git
 
