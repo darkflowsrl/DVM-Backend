@@ -1,6 +1,4 @@
-Aquí tienes el contenido en formato de código Markdown:
 
-```markdown
 # Documentación de Instalación DVM
 
 ## Requisitos Previos
