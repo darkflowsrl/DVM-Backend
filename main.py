@@ -29,7 +29,7 @@ Los siguientes comandos de linux sirven para levantar la interfaz can0
 desde el hardware.
 """
 IPS: List[str] = ['localhost', '192.168.1.62']
-HOST: str = IPS[0]
+HOST: str = '0.0.0.0'
 PORT: int = 8080    
 FAMILY: int = socket.AF_INET
 TYPE: int = socket.SOCK_STREAM
