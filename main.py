@@ -1,7 +1,8 @@
-from fastapi import FastAPI, Body
+from fastapi import FastAPI, Body, HTTPException
 from fastapi.responses import JSONResponse
-import uvicorn
+from pydantic import BaseModel, Field
 from threading import Thread
+import uvicorn
 import time
 
 from src.can_bus import (
@@ -24,160 +25,209 @@ from src.can_bus import (
 from src.canbus_parser import BoardParams, BoardTest, NodeConfiguration
 from src.log import log
 
-# Constants and global state
 VERSION: str = "1.3.0"
-HOST: str = "0.0.0.0"
-PORT: int = 8080
-
 LAST_RPM = {"rpm1": 0, "rpm2": 0, "rpm3": 0, "rpm4": 0}
-node_list: list = []
+node_list: list[int] = []
 
-app = FastAPI()
+# API metadata for Swagger
+app = FastAPI(
+    title="DVM CAN Bus Control API",
+    version=VERSION,
+    description="API para gestión y monitoreo de nodos en bus CAN mediante DVM-Scripts"
+)
 
+# ----- Pydantic Models -----
+class StatusResponse(BaseModel):
+    status: str = Field(..., description="Estado de la operación")
+
+class TestingPayload(BaseModel):
+    nodos: list[int] = Field(..., description="Lista de IDs de nodos a los que enviar comando de prueba")
+
+class NormalNode(BaseModel):
+    nodo: int = Field(..., description="ID del nodo")
+    rpm1: int = Field(..., ge=0, description="RPM motor 1")
+    rpm2: int = Field(..., ge=0, description="RPM motor 2")
+    rpm3: int = Field(..., ge=0, description="RPM motor 3")
+    rpm4: int = Field(..., ge=0, description="RPM motor 4")
+
+class NormalPayload(BaseModel):
+    nodos: list[NormalNode] = Field(..., description="Parámetros de RPM para cada nodo")
+
+class ConfigItem(BaseModel):
+    nodo: int = Field(..., description="ID del nodo a configurar")
+    variacionRPM: int = Field(..., description="Variación de RPM")
+    subcorriente: float = Field(..., description="Umbral de subcorriente")
+    sobrecorriente: float = Field(..., description="Umbral de sobrecorriente")
+    cortocicuito: float = Field(..., description="Umbral de cortocircuito")
+    sensor: int = Field(..., description="Configuración de sensor")
+    electrovalvula: int = Field(..., description="Configuración de electroválvula")
+
+class ConfigPayload(BaseModel):
+    configuraciones: list[ConfigItem] = Field(..., description="Lista de configuraciones por nodo")
+
+class RenamePayload(BaseModel):
+    nodo: int = Field(..., description="ID actual del nodo")
+    nodoNombreNuevo: int = Field(..., description="Nuevo ID del nodo")
+
+class FactoryResetPayload(BaseModel):
+    nodo: int = Field(..., description="ID del nodo a restablecer a fábrica")
+
+class ScanResponse(BaseModel):
+    nodos: list[int] = Field(..., description="Lista de nodos detectados en el escaneo del bus CAN")
+
+class VersionResponse(BaseModel):
+    version: str = Field(..., description="Versión de la API")
+    boardVersion: str = Field(..., description="Versión de firmware de la interfaz CAN")
+
+class MeteorResponse(BaseModel):
+    temperatura: float = Field(..., description="Temperatura ambiente")
+    humedad: float = Field(..., description="Humedad relativa")
+    presion: float = Field(..., description="Presión atmosférica")
+
+class NodeStateResponse(BaseModel):
+    nodo: int = Field(..., description="ID del nodo")
+    estado: str = Field(..., description="Estado actual del nodo")
+    # agregar más campos según buffer.parse_node()
+
+
+# ----- Background Tasks -----
 def get_status() -> None:
-    """Background thread: periodically request status from all nodes."""
+    """Hilo: solicitar estado de nodos y caudalímetro cada segundo"""
     while True:
         try:
             time.sleep(1)
             for node in node_list:
                 write_on_bus_take_status(bus_config=port_config, params=BoardTest(node))
-            # También solicitar datos del caudalímetro para todos los nodos
             write_on_ask_caudalimetro(bus_config=port_config, boards=node_list)
         except Exception as e:
             print(f"Exception in get_status: {e}")
 
+
 def get_rmp() -> None:
-    """Background thread: periodically request RPM data from all nodes."""
+    """Hilo: solicitar datos de RPM cada segundo"""
     while True:
         time.sleep(1)
         try:
             for node in node_list:
-                write_on_bus_take_rpm(bus_config=port_config, params=BoardTest(int(node)))
+                write_on_bus_take_rpm(bus_config=port_config, params=BoardTest(node))
         except Exception as e:
             print(f"Exception in get_rmp: {e}")
 
-@app.post("/testing")
-def testing_endpoint(payload: dict = Body(...)):
-    """Endpoint to send test command to specified nodes."""
-    nodos = payload.get("nodos", [])
-    for node_id in nodos:
+# ----- Endpoints -----
+@app.post("/testing", response_model=StatusResponse)
+def testing_endpoint(payload: TestingPayload = Body(...)):
+    """
+    Envía un comando de prueba a los nodos especificados.
+    - **nodos**: lista de IDs de nodos.
+    """
+    for node_id in payload.nodos:
         write_on_bus_test(bus_config=port_config, params=BoardTest(node_id))
-    return {"status": "ok"}
+    return StatusResponse(status="ok")
 
-@app.post("/normal")
-def normal_endpoint(payload: dict = Body(...)):
-    """Endpoint to send normal operation RPM values to specified nodes."""
+@app.post("/normal", response_model=StatusResponse)
+def normal_endpoint(payload: NormalPayload = Body(...)):
+    """
+    Establece valores de RPM para operación normal.
+    - **nodos**: lista de objetos con 'nodo', 'rpm1'...'rpm4'.
+    """
     global LAST_RPM
-    nodos = payload.get("nodos", [])
-    for nodo in nodos:
-        # Si todas las RPM son 0, enviar directamente ceros
-        if (nodo.get("rpm1") == 0 and nodo.get("rpm2") == 0 and nodo.get("rpm3") == 0 and nodo.get("rpm4") == 0):
-            write_on_bus_all_rpm(bus_config=port_config, params=BoardParams(nodo["nodo"], 0, 0, 0, 0))
+    for nodo in payload.nodos:
+        if all(getattr(nodo, f"rpm{i}") == 0 for i in range(1,5)):
+            write_on_bus_all_rpm(bus_config=port_config,
+                                 params=BoardParams(nodo.nodo, 0,0,0,0))
             continue
-        # Cambio gradual de RPM (arranque/paro suave)
-        write_on_bus_all_rpm(bus_config=port_config, params=BoardParams(
-            nodo["nodo"], nodo["rpm1"], LAST_RPM["rpm2"], LAST_RPM["rpm3"], LAST_RPM["rpm4"]
-        ))
-        time.sleep(0.1)
-        write_on_bus_all_rpm(bus_config=port_config, params=BoardParams(
-            nodo["nodo"], nodo["rpm1"], nodo["rpm2"], LAST_RPM["rpm3"], LAST_RPM["rpm4"]
-        ))
-        time.sleep(0.1)
-        write_on_bus_all_rpm(bus_config=port_config, params=BoardParams(
-            nodo["nodo"], nodo["rpm1"], nodo["rpm2"], nodo["rpm3"], LAST_RPM["rpm4"]
-        ))
-        time.sleep(0.1)
-        write_on_bus_all_rpm(bus_config=port_config, params=BoardParams(
-            nodo["nodo"], nodo["rpm1"], nodo["rpm2"], nodo["rpm3"], nodo["rpm4"]
-        ))
-        # Actualizar últimas RPM registradas para el próximo ajuste suave
-        LAST_RPM["rpm1"] = nodo["rpm1"]
-        LAST_RPM["rpm2"] = nodo["rpm2"]
-        LAST_RPM["rpm3"] = nodo["rpm3"]
-        LAST_RPM["rpm4"] = nodo["rpm4"]
-    return {"status": "ok"}
+        sequence = []
+        for i in range(1,5):
+            values = [nodo.rpm1, nodo.rpm2, nodo.rpm3, nodo.rpm4]
+            for j in range(4):
+                if j < i:
+                    values[j] = getattr(nodo, f"rpm{j+1}")
+                else:
+                    values[j] = LAST_RPM[f"rpm{j+1}"]
+            sequence.append(values.copy())
+        for seq in sequence:
+            write_on_bus_all_rpm(bus_config=port_config,
+                                 params=BoardParams(nodo.nodo, *seq))
+            time.sleep(0.1)
+        LAST_RPM.update({f"rpm{i}": getattr(nodo, f"rpm{i}") for i in range(1,5)})
+    return StatusResponse(status="ok")
 
-@app.post("/setConfiguracion")
-def set_configuracion_endpoint(payload: dict = Body(...)):
-    """Endpoint to send configuration parameters to specified nodes."""
-    configuraciones = payload.get("configuraciones", [])
-    for conf in configuraciones:
-        nodo_conf = NodeConfiguration(conf["nodo"],
-                                      conf["variacionRPM"],
-                                      conf["subcorriente"],
-                                      conf["sobrecorriente"],
-                                      conf["cortocicuito"],
-                                      conf["sensor"],
-                                      conf["electrovalvula"])
+@app.post("/setConfiguracion", response_model=StatusResponse)
+def set_configuracion_endpoint(payload: ConfigPayload = Body(...)):
+    """
+    Envía parámetros de configuración a los nodos.
+    - **configuraciones**: lista de configuraciones (variacionRPM, subcorriente, etc.).
+    """
+    for conf in payload.configuraciones:
+        nodo_conf = NodeConfiguration(
+            conf.nodo, conf.variacionRPM, conf.subcorriente,
+            conf.sobrecorriente, conf.cortocicuito,
+            conf.sensor, conf.electrovalvula
+        )
         write_on_bus_all_config(bus_config=port_config, node=nodo_conf)
-    return {"status": "ok"}
+    return StatusResponse(status="ok")
 
-@app.get("/scan")
+@app.get("/scan", response_model=ScanResponse)
 def scan_endpoint():
-    """Endpoint to scan the CAN bus for connected boards."""
+    """Escanea el bus CAN y retorna lista de nodos detectados."""
     write_scan_boards(bus_config=port_config)
-    time.sleep(2)  # Esperar a que finalice el escaneo
+    time.sleep(2)
     global node_list
-    node_list.extend(available_boards_from_scan)
-    node_list = list(set(node_list))
-    return {"nodos": available_boards_from_scan}
+    node_list = list(set(node_list + available_boards_from_scan))
+    return ScanResponse(nodos=available_boards_from_scan)
 
-@app.post("/renombrar")
-def renombrar_endpoint(payload: dict = Body(...)):
-    """Endpoint to rename a node (assign a new ID)."""
-    old_id = payload.get("nodo")
-    new_id = payload.get("nodoNombreNuevo")
-    if old_id is None or new_id is None:
-        return JSONResponse(status_code=400, content={"error": "Falta 'nodo' o 'nodoNombreNuevo'"})
+@app.post("/renombrar", response_model=StatusResponse)
+def renombrar_endpoint(payload: RenamePayload = Body(...)):
+    """
+    Renombra un nodo existente.
+    - **nodo**: ID actual.
+    - **nodoNombreNuevo**: nuevo ID.
+    """
+    if payload.nodo not in node_list:
+        raise HTTPException(status_code=404, detail="Nodo no encontrado")
     write_on_bus_rename(bus_config=port_config,
-                        b1=BoardParams(old_id, 0, 0, 0, 0),
-                        b2=BoardParams(new_id, 0, 0, 0, 0))
-    # Actualizar la lista de nodos conocidos
-    if old_id in node_list:
-        node_list.remove(old_id)
-    node_list.append(new_id)
-    node_list = list(set(node_list))
-    return {"status": "ok"}
+                        b1=BoardTest(payload.nodo),
+                        b2=BoardTest(payload.nodoNombreNuevo))
+    node_list.remove(payload.nodo)
+    node_list.append(payload.nodoNombreNuevo)
+    return StatusResponse(status="ok")
 
-@app.post("/restablecerFabrica")
-def restablecer_fabrica_endpoint(payload: dict = Body(...)):
-    """Endpoint to reset a node to factory settings."""
-    nodo_id = payload.get("nodo")
-    if nodo_id is None:
-        return JSONResponse(status_code=400, content={"error": "Falta 'nodo'"})
-    write_on_bus_factory_reset(bus_config=port_config, params=BoardParams(nodo_id, 0, 0, 0, 0))
-    return {"status": "ok"}
+@app.post("/restablecerFabrica", response_model=StatusResponse)
+def restablecer_fabrica_endpoint(payload: FactoryResetPayload = Body(...)):
+    """
+    Restablece la configuración de fábrica de un nodo.
+    - **nodo**: ID del nodo.
+    """
+    write_on_bus_factory_reset(bus_config=port_config,
+                                params=BoardTest(payload.nodo))
+    return StatusResponse(status="ok")
 
-@app.get("/version")
+@app.get("/version", response_model=VersionResponse)
 def version_endpoint():
-    """Endpoint to obtain system and board version information."""
-    board_version = BOARD_VERSION  # Use latest known board version
-    return {"version": VERSION, "boardVersion": board_version}
+    """Retorna versiones de la API y de las placas."""
+    return VersionResponse(version=VERSION, boardVersion=BOARD_VERSION)
 
-@app.get("/datosMeteorologicos")
+@app.get("/datosMeteorologicos", response_model=MeteorResponse)
 def datos_meteorologicos_endpoint():
-    """Endpoint to get current meteorological data."""
+    """Retorna datos meteorológicos actuales sin campo 'command'."""
     data = buffer.parse_meteor()
-    if isinstance(data, dict) and "command" in data:
-        data.pop("command")
-    return data
+    data.pop("command", None)
+    return MeteorResponse(**data)
 
-@app.get("/estadoGeneralNodos")
+@app.get("/estadoGeneralNodos", response_model=list[NodeStateResponse])
 def estado_general_nodos_endpoint():
-    """Endpoint to get current general status of nodes."""
+    """Retorna estado general de los nodos sin campo 'command'."""
     data = buffer.parse_node()
-    if isinstance(data, dict) and "command" in data:
-        data.pop("command")
-    return data
+    data.pop("command", None)
+    # Suponer que data es lista de dicts con campos compatibles
+    return [NodeStateResponse(**node) for node in data]
 
 @app.on_event("startup")
 def startup_event():
-    """Initialize background tasks and CAN interface on startup."""
-    # Iniciar hilos de fondo para leer del bus CAN y solicitar datos periódicamente
+    """Inicializa hilos de lectura y solicita versión de interfaz."""
     Thread(target=reader_loop, args=(port_config,), daemon=True).start()
     Thread(target=get_rmp, daemon=True).start()
     Thread(target=get_status, daemon=True).start()
-    # Solicitar versión de interfaz de placas al iniciar (para obtener BOARD_VERSION)
     try:
         write_on_bus_get_interface_version(bus_config=port_config)
     except Exception as e:
@@ -185,4 +235,4 @@ def startup_event():
     log("La API FastAPI se inició satisfactoriamente.", "startup_event")
 
 if __name__ == "__main__":
-    uvicorn.run(app, host=HOST, port=PORT)
+    uvicorn.run(app, host="0.0.0.0", port=8080)
