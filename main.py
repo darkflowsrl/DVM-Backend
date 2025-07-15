@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Body, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
+from typing import Any
 from threading import Thread
 import uvicorn
 import time
@@ -86,9 +87,11 @@ class MeteorResponse(BaseModel):
 
 class NodeStateResponse(BaseModel):
     nodo: int = Field(..., description="ID del nodo")
-    estado: str = Field(..., description="Estado actual del nodo")
-    # agregar más campos según buffer.parse_node()
-
+    state1: Any = Field(..., description="Estado 1 del nodo")
+    state2: Any = Field(..., description="Estado 2 del nodo")
+    state3: Any = Field(..., description="Estado 3 del nodo")
+    state4: Any = Field(..., description="Estado 4 del nodo")
+    voltaje: float = Field(..., description="Voltaje medido en el nodo (V)")
 
 # ----- Background Tasks -----
 def get_status() -> None:
@@ -220,7 +223,8 @@ def estado_general_nodos_endpoint():
     data = buffer.parse_node()
     data.pop("command", None)
     # Suponer que data es lista de dicts con campos compatibles
-    return [NodeStateResponse(**node) for node in data]
+    
+    return [NodeStateResponse(**node) for node in data["nodos"]]
 
 @app.on_event("startup")
 def startup_event():
