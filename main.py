@@ -101,7 +101,7 @@ def get_status() -> None:
             time.sleep(1)
             for node in node_list:
                 write_on_bus_take_status(bus_config=port_config, params=BoardTest(node))
-            write_on_ask_caudalimetro(bus_config=port_config, boards=node_list)
+            #write_on_ask_caudalimetro(bus_config=port_config, boards=node_list)
         except Exception as e:
             print(f"Exception in get_status: {e}")
 
@@ -174,7 +174,7 @@ def set_configuracion_endpoint(payload: ConfigPayload = Body(...)):
 def scan_endpoint():
     """Escanea el bus CAN y retorna lista de nodos detectados."""
     write_scan_boards(bus_config=port_config)
-    time.sleep(2)
+    time.sleep(5)
     global node_list
     node_list = list(set(node_list + available_boards_from_scan))
     return ScanResponse(nodos=available_boards_from_scan)
@@ -219,6 +219,7 @@ def datos_meteorologicos_endpoint():
 
 @app.get("/estadoGeneralNodos", response_model=list[NodeStateResponse])
 def estado_general_nodos_endpoint():
+    print("LIST:", node_list)
     """Retorna estado general de los nodos sin campo 'command'."""
     data = buffer.parse_node()
     data.pop("command", None)
