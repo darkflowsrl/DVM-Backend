@@ -16,6 +16,13 @@ buffer = StateBuffer()
 available_boards_from_scan: list = []
 BOARD_VERSION: str = ''
 
+CAN_RETRY_DELAY: float = 5.0
+
+def _handle_bus_exception(tag: str, description: str, exc: Exception) -> None:
+    log(f"{description} ({type(exc).__name__}): {exc}", tag)
+    print(f"[error] {description}")
+    time.sleep(CAN_RETRY_DELAY)
+
 class Ids:
     set_individual_rpm: int = 64835
     test_board: int = 64069
@@ -113,18 +120,21 @@ Si se produce una excepción al leer mensajes del bus CAN, la función imprime l
 en la consola y la registra en un archivo.
 """
 def reader_loop(config: CanPortConfig) -> None:
-        while True:
+    while True:
+        print('[INFO] Starting CAN bus reader loop...')
+        try:
+            
             with can.interface.Bus(channel=config.channel,
-                            interface=config.interface,
-                            bitrate=config.baudrate,
-                            receive_own_messages=True) as bus:
-                try:
-                    for message in bus:
-                        load_message(message)
-                except Exception as e:
-                    log(f'[error] {e}', 'reader_loop')
-                    print(f'[error]: {e}')
-                    
+                                   interface=config.interface,
+                                   bitrate=config.baudrate,
+                                   receive_own_messages=True) as bus:
+                for message in bus:
+                    print(f'[DEBUG] Received message: {message}')
+                    load_message(message)
+        except (OSError, can.CanError) as exc:
+            _handle_bus_exception('reader_loop', 'CAN bus disconnected, retrying reader', exc)
+        except Exception as exc:
+            _handle_bus_exception('reader_loop', 'Unexpected reader loop error', exc)
                 
 def write_on_bus_all_rpm(bus_config: CanPortConfig,
                          params: BoardParams) -> None:    
@@ -136,19 +146,16 @@ def write_on_bus_all_rpm(bus_config: CanPortConfig,
                                         params.m3_rpm//50,
                                         params.m4_rpm//50, 0, 0],
                                   is_extended_id=True)
-    
-    with can.interface.Bus(channel=bus_config.channel,
+    try:
+        with can.interface.Bus(channel=bus_config.channel,
                                interface=bus_config.interface,
                                bitrate=bus_config.baudrate,
                                receive_own_messages=True) as bus:
-                try:
-                    bus.send(msg)
-                    # print('[ok] Mensaje enviado : write_on_bus_all_rpm')
-                    log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", 'write_on_bus_test')
-                except can.CanError:
-                    log('[error] Mensaje no enviado : can error', 'write_on_bus_all_rpm')
-                    print('[error] Mensaje no enviado : write_on_bus_all_rpm')
-
+            bus.send(msg)
+            # print('[ok] Mensaje enviado : write_on_bus_all_rpm')
+            log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", 'write_on_bus_all_rpm')
+    except (OSError, can.CanError) as exc:
+        _handle_bus_exception('write_on_bus_all_rpm', 'Mensaje no enviado : write_on_bus_all_rpm', exc)
 def write_on_bus_test(bus_config: CanPortConfig,
                       params: BoardTest) -> None:
     msg = can.Message(arbitration_id=Ids.test_board,
@@ -156,17 +163,16 @@ def write_on_bus_test(bus_config: CanPortConfig,
                                         params.board_id_bytes[1], 0, 0, 0, 0, 0, 0],
                                   is_extended_id=True)
 
-    with can.interface.Bus(channel=bus_config.channel,
+    try:
+        with can.interface.Bus(channel=bus_config.channel,
                                interface=bus_config.interface,
                                bitrate=bus_config.baudrate,
                                receive_own_messages=True) as bus:
-                try:
-                    bus.send(msg)
-                    # print('[ok] Mensaje enviado : write_on_bus_test')
-                    log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", 'write_on_bus_test')
-                except can.CanError:
-                    log('[error] Mensaje no enviado : can error', 'write_on_bus_test')
-                    print('[error] Mensaje no enviado : write_on_bus_test')
+            bus.send(msg)
+            # print('[ok] Mensaje enviado : write_on_bus_test')
+            log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", 'write_on_bus_test')
+    except (OSError, can.CanError) as exc:
+        _handle_bus_exception('write_on_bus_test', 'Mensaje no enviado : write_on_bus_test', exc)
 
 def write_on_bus_take_status(bus_config: CanPortConfig,
                              params: BoardTest) -> None:
@@ -175,17 +181,16 @@ def write_on_bus_take_status(bus_config: CanPortConfig,
                                         params.board_id_bytes[1], 0, 0, 0, 0, 0, 0],
                                   is_extended_id=True)
 
-    with can.interface.Bus(channel=bus_config.channel,
+    try:
+        with can.interface.Bus(channel=bus_config.channel,
                                interface=bus_config.interface,
                                bitrate=bus_config.baudrate,
                                receive_own_messages=True) as bus:
-                try:
-                    bus.send(msg)
+            bus.send(msg)
 
-                    log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", 'write_on_bus_take_status')
-                except can.CanError:
-                    log('[error] Mensaje no enviado : can error', 'write_on_bus_take_status')
-                    print('[error] Mensaje no enviado : write_on_bus_take_status')
+            log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", 'write_on_bus_take_status')
+    except (OSError, can.CanError) as exc:
+        _handle_bus_exception('write_on_bus_take_status', 'Mensaje no enviado : write_on_bus_take_status', exc)
 
 def write_on_bus_take_rpm(bus_config: CanPortConfig,
                           params: BoardTest) -> None:
@@ -194,34 +199,32 @@ def write_on_bus_take_rpm(bus_config: CanPortConfig,
                                         params.board_id_bytes[1], 0, 0, 0, 0, 0, 0],
                                   is_extended_id=True)
 
-    with can.interface.Bus(channel=bus_config.channel,
+    try:
+        with can.interface.Bus(channel=bus_config.channel,
                                interface=bus_config.interface,
                                bitrate=bus_config.baudrate,
                                receive_own_messages=True) as bus:
-                try:
-                    bus.send(msg)
-                    # print('[ok] Mensaje enviado : write_on_bus_take_rpm')
-                    log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", 'write_on_bus_take_rpm')
-                except can.CanError:
-                    log('[error] Mensaje no enviado : can error', 'write_on_bus_take_rpm')
-                    print('[error] Mensaje no enviado : write_on_bus_take_rpm')
+            bus.send(msg)
+            # print('[ok] Mensaje enviado : write_on_bus_take_rpm')
+            log(f"Mensaje Enviado: {params.board_id}:{params.board_id_bytes.hex()}", 'write_on_bus_take_rpm')
+    except (OSError, can.CanError) as exc:
+        _handle_bus_exception('write_on_bus_take_rpm', 'Mensaje no enviado : write_on_bus_take_rpm', exc)
 
 def write_on_bus_get_interface_version(bus_config: CanPortConfig) -> None:
     msg = can.Message(arbitration_id=Ids.get_interface_version,
                                   data=[0, 0, 0, 0, 0, 0, 0, 0],
                                   is_extended_id=True)
 
-    with can.interface.Bus(channel=bus_config.channel,
+    try:
+        with can.interface.Bus(channel=bus_config.channel,
                                interface=bus_config.interface,
                                bitrate=bus_config.baudrate,
                                receive_own_messages=True) as bus:
-                try:
-                    bus.send(msg)
-                    # print('[ok] Mensaje enviado : write_on_bus_take_rpm')
-                    log(f"Mensaje Enviado: ", 'write_on_bus_get_interface_version')
-                except can.CanError:
-                    log('[error] Mensaje no enviado : can error', 'write_on_bus_get_interface_version')
-                    print('[error] Mensaje no enviado : write_on_bus_get_interface_version')
+            bus.send(msg)
+            # print('[ok] Mensaje enviado : write_on_bus_take_rpm')
+            log(f"Mensaje Enviado: ", 'write_on_bus_get_interface_version')
+    except (OSError, can.CanError) as exc:
+        _handle_bus_exception('write_on_bus_get_interface_version', 'Mensaje no enviado : write_on_bus_get_interface_version', exc)
 
 def write_on_bus_all_config(bus_config: CanPortConfig,
                             node: NodeConfiguration) -> None:    
@@ -270,32 +273,30 @@ def write_on_bus_all_config(bus_config: CanPortConfig,
                         msg_config_valve
                     ]
     
-    with can.interface.Bus(channel=bus_config.channel,
+    try:
+        with can.interface.Bus(channel=bus_config.channel,
                                interface=bus_config.interface,
                                bitrate=bus_config.baudrate,
                                receive_own_messages=True) as bus:
-                try:
-                    for msg in messages:
-                        bus.send(msg)
-                        time.sleep(0.05)
-                except can.CanError:
-                    log('[error] Mensaje no enviado : can error', 'write_on_bus_all_config')
-                    print('[error] Mensaje no enviado : write_on_bus_all_config')      
+            for msg in messages:
+                bus.send(msg)
+                time.sleep(0.05)
+    except (OSError, can.CanError) as exc:
+        _handle_bus_exception('write_on_bus_all_config', 'Mensaje no enviado : write_on_bus_all_config', exc)
 
 def write_scan_boards(bus_config: CanPortConfig) -> None:
     msg = can.Message(arbitration_id=Ids.ask_scan,
                         data=[0, 0, 0, 0, 0, 0, 0, 0],
                         is_extended_id=True)
 
-    with can.interface.Bus(channel=bus_config.channel,
+    try:
+        with can.interface.Bus(channel=bus_config.channel,
                                interface=bus_config.interface,
                                bitrate=bus_config.baudrate,
                                receive_own_messages=True) as bus:
-                try:
-                    bus.send(msg)
-                except can.CanError:
-                    log('[error] Mensaje no enviado : can error', 'write_scan_boards')
-                    print('[error] Mensaje no enviado : write_scan_boards')
+            bus.send(msg)
+    except (OSError, can.CanError) as exc:
+        _handle_bus_exception('write_scan_boards', 'Mensaje no enviado : write_scan_boards', exc)
 
 
 def write_on_bus_rename(bus_config: CanPortConfig,
@@ -308,15 +309,14 @@ def write_on_bus_rename(bus_config: CanPortConfig,
                                         b2.board_id_bytes[1], 0, 0, 0, 0],
                                   is_extended_id=True)
 
-    with can.interface.Bus(channel=bus_config.channel,
+    try:
+        with can.interface.Bus(channel=bus_config.channel,
                                interface=bus_config.interface,
                                bitrate=bus_config.baudrate,
                                receive_own_messages=True) as bus:
-                try:
-                    bus.send(msg)
-                except can.CanError:
-                    log('[error] Mensaje no enviado : can error', 'write_on_bus_rename')
-                    print('[error] Mensaje no enviado : write_on_bus_rename')
+            bus.send(msg)
+    except (OSError, can.CanError) as exc:
+        _handle_bus_exception('write_on_bus_rename', 'Mensaje no enviado : write_on_bus_rename', exc)
 
 def write_on_bus_factory_reset(bus_config: CanPortConfig,
                           params: BoardTest) -> None:
@@ -325,15 +325,14 @@ def write_on_bus_factory_reset(bus_config: CanPortConfig,
                                         params.board_id_bytes[1], 0, 0, 0, 0, 0, 0],
                                   is_extended_id=True)
 
-    with can.interface.Bus(channel=bus_config.channel,
+    try:
+        with can.interface.Bus(channel=bus_config.channel,
                                interface=bus_config.interface,
                                bitrate=bus_config.baudrate,
                                receive_own_messages=True) as bus:
-                try:
-                    bus.send(msg)
-                except can.CanError:
-                    log('[error] Mensaje no enviado : can error', 'write_on_bus_factory_reset')
-                    print('[error] Mensaje no enviado : write_on_bus_factory_reset')
+            bus.send(msg)
+    except (OSError, can.CanError) as exc:
+        _handle_bus_exception('write_on_bus_factory_reset', 'Mensaje no enviado : write_on_bus_factory_reset', exc)
 
 def write_on_ask_caudalimetro(bus_config: CanPortConfig,
                           boards: List[int]) -> None:
@@ -347,13 +346,12 @@ def write_on_ask_caudalimetro(bus_config: CanPortConfig,
                                                 0, 0, 0, 0, 0],
                                         is_extended_id=True)
 
-            with can.interface.Bus(channel=bus_config.channel,
-                                    interface=bus_config.interface,
-                                    bitrate=bus_config.baudrate,
-                                    receive_own_messages=True) as bus:
-                        try:
-                            bus.send(msg)
-                        except can.CanError:
-                            log('[error] Mensaje no enviado : can error', 'write_on_bus_factory_reset')
-                            print('[error] Mensaje no enviado : write_on_bus_factory_reset')
+            try:
+                with can.interface.Bus(channel=bus_config.channel,
+                                        interface=bus_config.interface,
+                                        bitrate=bus_config.baudrate,
+                                        receive_own_messages=True) as bus:
+                    bus.send(msg)
+            except (OSError, can.CanError) as exc:
+                _handle_bus_exception('write_on_ask_caudalimetro', 'Mensaje no enviado : write_on_ask_caudalimetro', exc)
 
