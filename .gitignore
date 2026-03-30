@@ -3,3 +3,4 @@
 src/tempCodeRunnerFile.py
 *.txt
 .linux-env
+/logs/*
