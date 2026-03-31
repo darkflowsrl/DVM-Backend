@@ -28,7 +28,7 @@ from src.can_bus import (
 from src.canbus_parser import BoardParams, BoardTest, NodeConfiguration
 from src.log import log
 
-VERSION: str = "1.4.0"
+VERSION: str = "1.5.0"
 LAST_RPM = {"rpm1": 0, "rpm2": 0, "rpm3": 0, "rpm4": 0}
 node_list: list[int] = []
 
