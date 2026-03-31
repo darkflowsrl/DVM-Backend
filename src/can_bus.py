@@ -5,6 +5,8 @@ from src.log import log
 import threading
 import can
 import time
+import subprocess
+from typing import Any
 
 TEST: bool = True
 
@@ -17,6 +19,52 @@ available_boards_from_scan: list = []
 BOARD_VERSION: str = ''
 
 CAN_RETRY_DELAY: float = 5.0
+WATCHDOG_THRESHOLD: float = 15.0
+WATCHDOG_INTERVAL: float = 10.0
+LINK_COMMAND: list[str] = [
+    "ip",
+    "link",
+    "set",
+    "can0",
+    "up",
+    "type",
+    "can",
+    "bitrate",
+]
+last_message_time: float = time.time() - WATCHDOG_THRESHOLD
+
+def _mark_message_received() -> None:
+    global last_message_time
+    last_message_time = time.time()
+
+def _run_link_command() -> None:
+    down_cmd = ["ip", "link", "set", "can0", "down"]
+    try:
+        subprocess.run(down_cmd, capture_output=True, text=True, check=False)
+        log("Down command executed", "can_link_watchdog")
+    except Exception as exc:
+        log(f"Down command failed: {exc}", "can_link_watchdog")
+    cmd = LINK_COMMAND + [str(port_config.baudrate)]
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        if result.returncode == 0:
+            log("Re-link command executed", "can_link_watchdog")
+        else:
+            log(f"Re-link failed ({result.returncode}): {result.stderr.strip()}", "can_link_watchdog")
+    except Exception as exc:
+        log(f"Re-link command error: {exc}", "can_link_watchdog")
+
+def can_link_supervisor() -> None:
+    while True:
+        time.sleep(WATCHDOG_INTERVAL)
+        if time.time() - last_message_time > WATCHDOG_THRESHOLD:
+            _run_link_command()
+
+def get_can_link_status() -> dict[str, Any]:
+    return {
+        "healthy": time.time() - last_message_time <= WATCHDOG_THRESHOLD,
+        "seconds_since_last_message": round(time.time() - last_message_time, 1),
+    }
 
 def _handle_bus_exception(tag: str, description: str, exc: Exception) -> None:
     log(f"{description} ({type(exc).__name__}): {exc}", tag)
@@ -131,6 +179,7 @@ def reader_loop(config: CanPortConfig) -> None:
                 for message in bus:
                     print(f'[DEBUG] Received message: {message}')
                     load_message(message)
+                    _mark_message_received()
         except (OSError, can.CanError) as exc:
             _handle_bus_exception('reader_loop', 'CAN bus disconnected, retrying reader', exc)
         except Exception as exc:

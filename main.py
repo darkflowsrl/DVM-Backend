@@ -21,12 +21,14 @@ from src.can_bus import (
     buffer,
     port_config,
     BOARD_VERSION,
-    available_boards_from_scan
+    available_boards_from_scan,
+    can_link_supervisor,
+    get_can_link_status
 )
 from src.canbus_parser import BoardParams, BoardTest, NodeConfiguration
 from src.log import log
 
-VERSION: str = "1.3.0"
+VERSION: str = "1.4.0"
 LAST_RPM = {"rpm1": 0, "rpm2": 0, "rpm3": 0, "rpm4": 0}
 node_list: list[int] = []
 
@@ -92,6 +94,10 @@ class NodeStateResponse(BaseModel):
     state3: Any = Field(..., description="Estado 3 del nodo")
     state4: Any = Field(..., description="Estado 4 del nodo")
     voltaje: float = Field(..., description="Voltaje medido en el nodo (V)")
+
+class CanLinkStatusResponse(BaseModel):
+    healthy: bool = Field(..., description="True si llegó un mensaje en los últimos 15 segundos")
+    seconds_since_last_message: float = Field(..., description="Segundos transcurridos desde el último mensaje")
 
 # ----- Background Tasks -----
 def get_status() -> None:
@@ -219,13 +225,21 @@ def datos_meteorologicos_endpoint():
 
 @app.get("/estadoGeneralNodos", response_model=list[NodeStateResponse])
 def estado_general_nodos_endpoint():
-    print("LIST:", node_list)
     """Retorna estado general de los nodos sin campo 'command'."""
+    link_status = get_can_link_status()
+    if not link_status["healthy"]:
+        return []
     data = buffer.parse_node()
     data.pop("command", None)
     # Suponer que data es lista de dicts con campos compatibles
     
     return [NodeStateResponse(**node) for node in data["nodos"]]
+
+
+@app.get("/can-link", response_model=CanLinkStatusResponse)
+def can_link_status_endpoint():
+    """Indica si han pasado menos de 15 segundos desde el último mensaje CAN."""
+    return CanLinkStatusResponse(**get_can_link_status())
 
 @app.on_event("startup")
 def startup_event():
@@ -233,6 +247,7 @@ def startup_event():
     Thread(target=reader_loop, args=(port_config,), daemon=True).start()
     Thread(target=get_rmp, daemon=True).start()
     Thread(target=get_status, daemon=True).start()
+    Thread(target=can_link_supervisor, daemon=True).start()
     try:
         write_on_bus_get_interface_version(bus_config=port_config)
     except Exception as e:
